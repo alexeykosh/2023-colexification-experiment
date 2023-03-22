@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Sender</title>
+    <title>Receiver</title>
+    <!-- <style>
+    </style> -->
   </head>
   <body>
-    <h1>Press a Button to send</h1>
-    <button onclick="sendButtonId(1)">rabu</button>
-    <button onclick="sendButtonId(2)">tabudiga</button>
+    <h1>You received something</h1>
+    <button onclick="sendButtonId(1)"><img src="static/shapes/C.png" alt="Button 1"></button>
+    <button onclick="sendButtonId(2)"><img src="static/shapes/S.png" alt="Button 2"></button>
+    <button onclick="sendButtonId(3)"><img src="static/shapes/T.png" alt="Button 3"></button>
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
     <script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript" charset="utf-8">
@@ -15,20 +18,21 @@
       
       // If connected, send the 'joined' event
       socket.on('connect', function() {
-        socket.emit('joinedSender');
+        socket.emit('joinedReceiver');
       });
-
+      
       // Send the ID of the pressed button to the server
       function sendButtonId(id) {
-        socket.emit('buttonPressedSender', id);
+        socket.emit('buttonPressedReceiver', id);
       }
       // if receive 'redirect' reidrect to the url
       socket.on('redirect', function(data) {
           window.location.href = data.url;
       });
 
+
       // Receive 'stimulus' event and add image to the DOM
-      socket.on('stimulus', function(data) {
+      socket.on('context', function(data) {
         const img = document.createElement('img');
         img.src = data.st;
         document.body.insertBefore(img, document.body.firstChild);
@@ -36,3 +40,4 @@
     </script>
   </body>
 </html>
+

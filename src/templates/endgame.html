@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Game Ended</title>
+    <!-- <style>
+    body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    #score {
+        margin-top: 50px;
+        font-size: 36px;
+        text-align: center;
+    }
+    </style> -->
+  </head>
+  <body>
+    <div>
+    <h1 id="score" </h1>
+    </div>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
+    <script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        const socket = io();
+
+
+        socket.on('connect', function() {
+            socket.emit('joinedEndGame');
+        });
+
+        socket.on("score", function(data) {
+            const scoreDiv = document.getElementById("score");
+            scoreDiv.innerHTML = `The game is ended. Your final score is: ${data.score}`;
+        });
+
+    </script>
+  </body>
+</html>

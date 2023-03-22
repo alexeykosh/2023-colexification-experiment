@@ -2,8 +2,6 @@ from flask import (Flask,
                    render_template, 
                    request, 
                    redirect, 
-                   url_for, 
-                   session, 
                    make_response)
 from flask_socketio import SocketIO
 import random
@@ -20,9 +18,11 @@ queue = []
 experiments = defaultdict(dict)
 experiments_queue = []
 
-# setup path to stimuli
 STIMULI_FOLDER = os.path.join('static', 'stimuli')
 app.config['STIMULI_FOLDER'] = STIMULI_FOLDER
+
+CONTEXT_FOLDER = os.path.join('static', 'context')
+app.config['CONTEXT_FOLDER'] = CONTEXT_FOLDER
 
 ### ROUTES ###
 
@@ -72,6 +72,10 @@ def receiver():
 def result():
     return render_template('result.html')
 
+@app.route('/endgame')
+def endgame():
+    return render_template('endgame.html')
+
 ### SOCKETIO ###
 
 @socketio.on('joinedWaiting')
@@ -79,7 +83,7 @@ def joined_waiting_room():
     user = request.cookies.get('user')
     experiment_id = int(request.cookies.get('experiment_id'))
     global game 
-    game = Game({'T': ['r'], 'C': ['l'], 'S': ['r', 'l']}, rounds=100)
+    game = Game({'T': ['r'], 'C': ['l'], 'S': ['r', 'l']}, rounds=2)
     if experiments[experiment_id]['receiver'] == user:
         socketio.emit('redirect', {'url': '/stand_by'}, room=request.sid)
     elif experiments[experiment_id]['sender'] == user:
@@ -90,12 +94,21 @@ def joined_sender():
     global context
     global stimulus
     stimulus, context = game.generate_sc()
-    socketio.emit('stimulus', {'st': os.path.join(app.config['STIMULI_FOLDER'], f'{stimulus}-{context}.png')}, room=request.sid)
+    socketio.emit('stimulus', {'st': os.path.join(app.config['STIMULI_FOLDER'], 
+                                                  f'{stimulus}-{context}.png')}, room=request.sid)
+
+@socketio.on('joinedReceiver')
+def joined_receiver():
+    socketio.emit('contextWord', {'img': os.path.join(app.config['CONTEXT_FOLDER'], f'{context}.png'), 
+                                  'word': word}, room=request.sid)
 
 @socketio.on('buttonPressedSender')
 def button_pressed(button_id):
+    global word 
+
     button_ids = {1: 'rabu', 2: 'tabudiga'}
     game.log_word(button_ids[button_id])
+    word = button_ids[button_id]
     user = request.cookies.get('user')
     experiment_id = int(request.cookies.get('experiment_id'))
     if experiments[experiment_id]['sender'] == user:
@@ -105,38 +118,41 @@ def button_pressed(button_id):
 
 @socketio.on('buttonPressedReceiver')
 def button_pressed(button_id):
-    button_ids = {1: 'C', 2: 'S', 3: 'T'}
-    user = request.cookies.get('user')
-    experiment_id = int(request.cookies.get('experiment_id'))
     global stimulus_out 
+    global old_sender
+    global old_receiver
+
+    button_ids = {1: 'C', 2: 'S', 3: 'T'}
+    experiment_id = int(request.cookies.get('experiment_id'))
     stimulus_out = button_ids[button_id]
     socketio.emit('redirect', {'url': '/result'}, broadcast=True)
-    # result = game.check(stimulus_out=button_ids[button_id], stimulus=stimulus)
-    # print('receiver pressed a button')
-    # print(experiments[experiment_id])
-    # print(user)
-    # if experiments[experiment_id]['receiver'] == user:
-    #     print('b')
-    #     socketio.emit('redirect', {'url': '/stand_by'}, room=request.sid)
-    # socketio.emit('redirect', {'url': '/sender'}, include_self=False)
+    old_sender = experiments[experiment_id]['sender']
+    old_receiver = experiments[experiment_id]['receiver']
 
 @socketio.on('joinedResult')
 def joined_result():
-    result = game.check(stimulus_out=stimulus_out, stimulus=stimulus)
-    socketio.emit('resultCheck', {'message': str(result)}, room=request.sid)
-    experiment_id = int(request.cookies.get('experiment_id'))
-    user = request.cookies.get('user')
-    # switch sender and receiver in experiments
-    old_sender = experiments[experiment_id]['sender']
-    old_receiver = experiments[experiment_id]['receiver']
-    experiments[experiment_id]['sender'] = old_receiver
-    experiments[experiment_id]['receiver'] = old_sender
-    print(experiments[experiment_id])
-    sleep(5)
-    if experiments[experiment_id]['receiver'] == user:
-        socketio.emit('redirect', {'url': '/stand_by'}, room=request.sid)
-    elif experiments[experiment_id]['sender'] == user:
-        socketio.emit('redirect', {'url': '/sender'}, room=request.sid)
+    try:
+        result = game.check(stimulus_out=stimulus_out, stimulus=stimulus)
+        socketio.emit('resultCheck', {'message': str(result)}, room=request.sid)
+        experiment_id = int(request.cookies.get('experiment_id'))
+        user = request.cookies.get('user')
+        print(experiments[experiment_id])
+        sleep(5)
+        if old_sender == user:
+            experiments[experiment_id]['receiver'] = old_sender
+            socketio.emit('redirect', {'url': '/stand_by'}, room=request.sid)
+        elif old_receiver == user:
+            experiments[experiment_id]['sender'] = old_receiver
+            socketio.emit('redirect', {'url': '/sender'}, room=request.sid)
+    except Exception:
+        # redirect to final page with score
+        socketio.emit('redirect', {'url': '/endgame'}, room=request.sid)
+        game.save_logs()
+        pass
+
+@socketio.on('joinedEndGame')
+def joined_endgame():
+    socketio.emit('score', {'score': game.score}, room=request.sid)
 
 if __name__ == '__main__':
     socketio.run(app, debug=False, port=9000)

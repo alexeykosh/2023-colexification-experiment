@@ -16,7 +16,13 @@ class Game:
         self.LOGS = defaultdict(dict)
 
     def generate_sc(self):
-        '''Randomly choose a stimuli context pair for the sender'''
+        '''
+        Randomly choose a stimuli context pair for the sender
+        
+        To-do:
+        - Add stimuli and context to global variables to eliminate 
+        global in the server.
+        '''
         stimulus = np.random.choice(list(self.stimuli_context.keys()), 
                                     p=[self.stimuli_prob[s] for s in self.stimuli_context])
         context = np.random.choice(self.stimuli_context[stimulus],
