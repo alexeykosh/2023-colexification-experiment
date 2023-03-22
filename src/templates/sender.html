@@ -4,16 +4,19 @@
     <title>Sender</title>
   </head>
   <body>
-    <h1>Press a Button</h1>
-    <button onclick="sendButtonId(1)">Button 1</button>
-    <button onclick="sendButtonId(2)">Button 2</button>
-    <button onclick="sendButtonId(3)">Button 3</button>
+    <h1>Press a Button to send</h1>
+    <button onclick="sendButtonId(1)">rabu</button>
+    <button onclick="sendButtonId(2)">tabudiga</button>
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
     <script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript" charset="utf-8">
       // Connect to the Socket.io server
       const socket = io();
       
+      socket.on('connect', function() {
+        socket.emit('joinedSender');
+      });
+
       // Send the ID of the pressed button to the server
       function sendButtonId(id) {
         socket.emit('buttonPressedSender', id);
@@ -21,6 +24,13 @@
       // if receive 'redirect' reidrect to the url
       socket.on('redirect', function(data) {
           window.location.href = data.url;
+      });
+
+      // Receive 'stimulus' event and add image to the DOM
+      socket.on('stimulus', function(data) {
+        const img = document.createElement('img');
+        img.src = data.st;
+        document.body.insertBefore(img, document.body.firstChild);
       });
     </script>
   </body>

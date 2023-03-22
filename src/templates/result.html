@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Results</title>
+	<script src="https://cdn.socket.io/socket.io-3.0.1.min.js"></script>
+	<script>
+		// Connect to the Socket.IO server
+		var socket = io();
+
+        socket.on('connect', function() {
+            socket.emit('joinedResult');
+        });
+
+		// Listen for the 'message' event
+		socket.on('resultCheck', function(data) {
+			// Get the correct/incorrect message from the data
+			var message = data.message;
+
+			// Update the content on the page
+			var statusElement = document.getElementById('status');
+			statusElement.innerHTML = message;
+		});
+
+              // if receive 'redirect' reidrect to the url
+        socket.on('redirect', function(data) {
+          window.location.href = data.url;
+        });
+	</script>
+</head>
+<body>
+	<h1>Socket.IO Example</h1>
+	<p>Status: <span id="status">Waiting for message...</span></p>
+</body>
+</html>

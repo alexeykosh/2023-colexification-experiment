@@ -24,7 +24,7 @@ class Game:
         self.current_round += 1
         self.LOGS[self.current_round]['stimulus'] = stimulus
         self.LOGS[self.current_round]['context'] = context
-        return stimulus, context
+        return str(stimulus), str(context)
     
     def log_word(self, word):
         '''Log the word that was sent by the sender'''
@@ -56,6 +56,3 @@ class Game:
         # save logs to json file
         with open(f'logs/logging-{datetime.now().strftime("%Y%m%d%H%M%S")}.json', 'w') as f:
             json.dump(self.LOGS, f)
-
-if __name__ == '__main__':
-    a = Game({'T': ['r', 'l'], 'C': ['r'], 'S': ['l']}, rounds=10)
