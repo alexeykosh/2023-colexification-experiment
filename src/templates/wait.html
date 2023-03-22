@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Waiting Room</title>
+</head>
+<body>
+    <h1>Waiting Room</h1>
+    <p>{{user}} are now in the waiting room. Please wait for another participant to join.</p>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
+    <script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+    var socket = io();
+    
+    socket.on('connect', function() {
+        socket.emit('joinedWaiting');
+    });
+
+    // if receive 'redirect' reidrect to the url
+    socket.on('redirect', function(data) {
+        window.location.href = data.url;
+    });
+    </script>
+</body>
+</html>
