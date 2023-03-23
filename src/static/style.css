@@ -1,0 +1,55 @@
+/* set the body color to light blue */
+body {
+    background-color: #e6f2ff;
+    /* position everything in the center of the page vertically and horizontally */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    /* bring your own prefixes */
+    transform: translate(-50%, -50%);
+    /* left: 50%; */
+    /* display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column; */
+    /* width: 100%; */
+}
+
+.score-row {
+    /* position items in the top right corner of the page */
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+    flex-direction: row;
+}
+
+.top-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+}
+
+.button-container {
+    /* position a set of button in the center of the page and allign them in row */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    /* make the buttons to be the same size */
+    width: 100%;
+}
+
+/* make all images to be the same size while keeping proportions */
+img {
+    display: block;
+    max-width:200px;
+    max-height:200px;
+    width: auto;
+    height: auto;
+    /* position them in the center */
+    margin-left: auto;
+    margin-right: auto;
+    /* add equal borders on top and on the bottom of the image */
+}

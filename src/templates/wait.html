@@ -2,10 +2,13 @@
 <html>
 <head>
     <title>Waiting Room</title>
+    <link href="/static/style.css" rel="stylesheet">
 </head>
 <body>
-    <h1>Waiting Room</h1>
-    <p>{{user}} are now in the waiting room. Please wait for another participant to join.</p>
+    <div class="top-row">
+        <h2>{{user}}, you are now in the waiting room. </h2> 
+        <h2>Please wait for another participant to join.</h2>
+    <div class="top-row">
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
     <script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript" charset="utf-8">

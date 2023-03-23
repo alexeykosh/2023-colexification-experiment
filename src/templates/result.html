@@ -2,6 +2,12 @@
 <html>
 <head>
 	<title>Results</title>
+    <link href="/static/style.css" rel="stylesheet">
+</head>
+<body>
+	<div class="top-row">
+		<h2 id="status"></span></h2>
+	</div>
 	<script src="https://cdn.socket.io/socket.io-3.0.1.min.js"></script>
 	<script>
 		// Connect to the Socket.IO server
@@ -21,14 +27,16 @@
 			statusElement.innerHTML = message;
 		});
 
+		socket.on("resultCheck", function(data) {
+			var message = data.message;
+            var scoreDiv = document.getElementById("status");
+            scoreDiv.innerHTML = `${message}`;
+        });
+
               // if receive 'redirect' reidrect to the url
         socket.on('redirect', function(data) {
           window.location.href = data.url;
         });
 	</script>
-</head>
-<body>
-	<h1>Socket.IO Example</h1>
-	<p>Status: <span id="status">Waiting for message...</span></p>
 </body>
 </html>

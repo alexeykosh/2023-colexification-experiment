@@ -1,43 +1,23 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<title>Waiting for Player 1</title>
-	<style>
-		.dots {
-			animation: blink 1.5s infinite;
-		}
+	<head>
+		<title>Waiting</title>
+		<link href="/static/style.css" rel="stylesheet">
+	</head>
+	<body>
+		<div class="top-row">
+			<h2>Waiting for Player 1<span class="dots"></span></h2>
+		</div>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
+		<script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
+		<script type="text/javascript" charset="utf-8">
+			// Connect to the Socket.io server
+			const socket = io();
+			// if receive 'redirect' reidrect to the url
 
-		@keyframes blink {
-			0% {
-				content: "";
-			}
-
-			33% {
-				content: ".";
-			}
-
-			66% {
-				content: "..";
-			}
-
-			100% {
-				content: "...";
-			}
-		}
-	</style>
-</head>
-<body>
-	<h1>Waiting for Player 1<span class="dots"></span></h1>
-	<script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
-    <script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script type="text/javascript" charset="utf-8">
-		// Connect to the Socket.io server
-		const socket = io();
-		// if receive 'redirect' reidrect to the url
-
-		socket.on('redirect', function(data) {
-			window.location.href = data.url;
-		});
-	</script>
-</body>
+			socket.on('redirect', function(data) {
+				window.location.href = data.url;
+			});
+		</script>
+	</body>
 </html>

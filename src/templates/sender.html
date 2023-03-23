@@ -2,11 +2,19 @@
 <html>
   <head>
     <title>Sender</title>
+    <link href="/static/style.css" rel="stylesheet">
   </head>
   <body>
-    <h1>Press a Button to send</h1>
-    <button onclick="sendButtonId(1)">rabu</button>
-    <button onclick="sendButtonId(2)">tabudiga</button>
+    <div class="score-row">
+      <p>Player: ... Score: ...</p>
+    </div>
+    <div class="top-row">
+      <h2>Choose the word to send the shape above:</h2>
+    </div>
+    <div class="button-container">
+      <button id="button1" onmousedown="startTimer(1)" onmouseup="stopTimer(1)">rabu</button>
+      <button id="button2" onmousedown="startTimer(2)" onmouseup="stopTimer(2)">tabudiga</button>
+    </div>
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
     <script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript" charset="utf-8">
@@ -18,10 +26,32 @@
         socket.emit('joinedSender');
       });
 
-      // Send the ID of the pressed button to the server
-      function sendButtonId(id) {
-        socket.emit('buttonPressedSender', id);
+      // Timer variables for each button
+      let timer1 = null;
+      let timer2 = null;
+
+      // Start the timer for the specified button
+      function startTimer(buttonId) {
+        if (buttonId === 1) {
+          timer1 = setTimeout(function() {
+            socket.emit('buttonPressedSender', buttonId);
+          }, 2000);
+        } else if (buttonId === 2) {
+          timer2 = setTimeout(function() {
+            socket.emit('buttonPressedSender', buttonId);
+          }, 5000);
+        }
       }
+
+      // Stop the timer for the specified button
+      function stopTimer(buttonId) {
+        if (buttonId === 1) {
+          clearTimeout(timer1);
+        } else if (buttonId === 2) {
+          clearTimeout(timer2);
+        }
+      }
+
       // if receive 'redirect' reidrect to the url
       socket.on('redirect', function(data) {
           window.location.href = data.url;
@@ -33,6 +63,7 @@
         img.src = data.st;
         document.body.insertBefore(img, document.body.firstChild);
       });
+
     </script>
   </body>
 </html>
