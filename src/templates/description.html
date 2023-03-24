@@ -67,8 +67,12 @@
 
 		setTimeout(function() {
 			document.getElementById("continueBtn").style.display = "block";
-            socket.emit('readyToContinue');
-		}, 10000);
+		}, 10);
+
+        // if continue button is clicked, emit continue event
+        document.getElementById("continueBtn").addEventListener("click", function() {
+            socket.emit("readyToContinue");
+        });
 
         socket.on('redirect', function(data) {
             window.location.href = data.url;

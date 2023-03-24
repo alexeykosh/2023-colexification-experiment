@@ -29,7 +29,11 @@ app.config['CONTEXT_FOLDER'] = CONTEXT_FOLDER
 
 ### ROUTES ###
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
+def description():
+    return render_template('description.html')
+
+@app.route('/start', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
         user_in = request.form['nickname']
@@ -53,10 +57,6 @@ def index():
         else:
             pass
     return render_template('index.html')
-
-@app.route('/description')
-def description():
-    return render_template('description.html')
 
 @app.route('/wait')
 def wait():
@@ -84,6 +84,10 @@ def endgame():
     return render_template('endgame.html')
 
 ### SOCKET.IO ###
+
+@socketio.on('readyToContinue')
+def ready_to_continue():
+    socketio.emit('redirect', {'url': '/start'}, room=request.sid)
 
 @socketio.on('joinedWaiting')
 def joined_waiting_room():
