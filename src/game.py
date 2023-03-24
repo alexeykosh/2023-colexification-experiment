@@ -27,13 +27,15 @@ class Game:
                                     p=[self.stimuli_prob[s] for s in self.stimuli_context])
         context = np.random.choice(self.stimuli_context[stimulus],
                                       p=[self.stimuli_context_prob[stimulus][c] for c in self.stimuli_context[stimulus]])
-        self.current_round += 1
         self.LOGS[self.current_round]['stimulus'] = stimulus
         self.LOGS[self.current_round]['context'] = context
         return str(stimulus), str(context)
     
     def log_word(self, word):
         '''Log the word that was sent by the sender'''
+        # NB: this is moved from generate_sc to avoid adding counts
+        # when reloading page
+        self.current_round += 1
         self.LOGS[self.current_round]['word'] = word
 
     def check(self, stimulus_out, stimulus):
