@@ -48,13 +48,14 @@
 </head>
 <body>
 	<h1>Welcome to the game!</h1>
-	<p>In this game, your task is to learn an alien language with a partner. You will be doing this by acting in two roles: as the sender and the receiver. When playing as a sender, your task will be presented with images similar to the one below:</p>
+	<p>In this game, you and your partner will be playing a guessing game. You would be taking turns exchanging messages about the shapes that you will be presented with. Your goal is to figure out a way to earn the maximum amount of points by correctly guessing the objects encoded by those messages. During game, you will be presented with images similar to the one below:</p>
 	<img src="/static/stimuli/T-r.png">
-	<p>This image consists of a triangle (the shape) and a box with two squares (the context). The context is the position in the box — it can be either right square (as shown in the image above) or left square. Your goal here is to choose between two words from this alien language presented below to send the message about the shape you see to your partner (the receiver). For instance, you can be given two words: atab and burikitano.</p>
-	<p>To send a longer word (e.g. burikitano), press and hold for 5 seconds. For shorter words (e.g. atab), press and hold for 2 seconds. The goal of your partner (the receiver) would be to guess the shape that you meant by the word you send. In addition to the word, he will be provided with the context that you were given (in this case, he will be notified that your shape was on the left of the box). If he guesses correctly, you both get one point. Then, you will be assigned the role of the receiver, and your partner will become the sender.</p>
-	<p>As a receiver, your goal is to guess the shape that your partner (the sender) has encoded in the word that he sent. You will be presented with the interface which will look like this:</p>
-	<img src="/static/interface/receiver.png">
-	<p>As you can see from the figure above, you will be presented with the word (highlighted in purple) and the context (in this case, the indication that the shape that this word corresponds to is on the right). Your goal here is to choose the shape that you think this word corresponds to. If you guess correctly, you and your partner will both receive one point. Then, you will switch your roles again.</p>
+	<p>This image consists of two elements: a triangle (the shape) and a box with two compartments, with the triangle being placed on the right or on the left (the position). Here, your task is to choose between two messages to describe the shape that you see on your screen to your partner. You will be provided with two messages: rabu and tabudiga. You can only choose one of them to describe the shape to your partner. An example of the interface for this task is presented below:    </p>
+    <img src="/static/interface/sender.png">
+	<p>Just as in the real world, longer messages need more time to be pronounced, longer words take more time to be sent in this game. To send a longer message (e.g. tabudiga), press and hold for 3 seconds. For shorter messages (e.g. rabu), press and hold for 1 second. The goal of your partner would be to guess the shape that you meant by the message you send. In addition to the message that you sent them, they will be provided with the position of the shape that you were shown. If they guess correctly, you both get one point. If they guess incorrectly, the number of points will stay the same.</p>
+	<p>After sending the message, you and your partner will switch the roles. Now, your task is to guess the shape that your partner meant by looking at the position and the message that they choose. The interface here will look like this:</p>
+    <img src="/static/interface/receiver.png">
+	<p>Here, you will be presented with the message (highlighted in purple) and the context (in this case, the red dot on the right indicates that the shape that this message corresponds to is positioned on the right). Your goal here is to choose the shape that you think this message corresponds to. In this example, the correct guess would be the triangle. If you guess correctly, you and your partner will both receive one point. Then, you will switch your roles again. You will be playing a total of 20 rounds.</p>
 	<button id="continueBtn" style="display: none;">Continue</button>
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
     <script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -67,7 +68,7 @@
 
 		setTimeout(function() {
 			document.getElementById("continueBtn").style.display = "block";
-		}, 5000);
+		}, 100);
 
         // if continue button is clicked, emit continue event
         document.getElementById("continueBtn").addEventListener("click", function() {

@@ -5,7 +5,6 @@
     <link href="/static/style.css" rel="stylesheet">
   </head>
   <body>
-    <div class="topright">Score: ...</div>
     <div class="top-row">
       <img id="image">
       <h2>Choose one of the words to send the shape above:</h2>
@@ -34,11 +33,11 @@
         if (buttonId === 1) {
           timer1 = setTimeout(function() {
             socket.emit('buttonPressedSender', buttonId);
-          }, 2000);
+          }, 100);
         } else if (buttonId === 2) {
           timer2 = setTimeout(function() {
             socket.emit('buttonPressedSender', buttonId);
-          }, 5000);
+          }, 300);
         }
       }
 

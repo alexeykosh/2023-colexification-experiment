@@ -16,6 +16,7 @@ socketio = SocketIO(app)
 
 ### GLOBAL ###
 
+NROUNDS = 20
 queue = []
 experiments = defaultdict(dict)
 experiments_queue = []
@@ -100,9 +101,10 @@ def joined_waiting_room():
     global game 
     user = request.cookies.get('user')
     experiment_id = int(request.cookies.get('experiment_id'))
-    game = Game({'T': ['r'], 'C': ['l'], 'S': ['r', 'l']}, rounds=10)
+    game = Game({'T': ['r'], 'C': ['l'], 'S': ['r', 'l']}, rounds=NTRIALS)
     while experiments[experiment_id]['sender'] is None:
-        sleep(0.1)
+        # waiting for receiver to join 
+        sleep(1)
     else:
         if experiments[experiment_id]['receiver'] == user:
             socketio.emit('redirect', {'url': '/stand_by'}, room=request.sid)
@@ -186,7 +188,7 @@ def joined_endgame():
     - Score is incremented for both players, so it needs to be divided by 2. Update
     the game class to resolve this issue.
     '''
-    socketio.emit('score', {'score': game.score/2}, room=request.sid)
+    socketio.emit('score', {'score': game.score}, room=request.sid)
 
 if __name__ == '__main__':
     socketio.run(app, debug=False, port=9000)

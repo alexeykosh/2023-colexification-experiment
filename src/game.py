@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 
 class Game:
-    def __init__(self, stimuli_context, rounds=100) -> None:
+    def __init__(self, stimuli_context, rounds=100):
         self.stimuli_context = stimuli_context
         self.stimuli_prob = {s: 1/len(stimuli_context) for s in stimuli_context}
         self.stimuli_context_prob = {s: {c: 1/len(stimuli_context[s]) for c in stimuli_context[s]} for s in stimuli_context}
@@ -12,6 +12,8 @@ class Game:
         self.rounds = rounds
         self.current_round = 0
         self.score = 0
+
+        self.n_checks = 0
 
         self.LOGS = defaultdict(dict)
 
@@ -27,24 +29,27 @@ class Game:
                                     p=[self.stimuli_prob[s] for s in self.stimuli_context])
         context = np.random.choice(self.stimuli_context[stimulus],
                                       p=[self.stimuli_context_prob[stimulus][c] for c in self.stimuli_context[stimulus]])
+        self.current_round += 1
         self.LOGS[self.current_round]['stimulus'] = stimulus
         self.LOGS[self.current_round]['context'] = context
+        self.n_checks = 0
         return str(stimulus), str(context)
     
     def log_word(self, word):
         '''Log the word that was sent by the sender'''
         # NB: this is moved from generate_sc to avoid adding counts
         # when reloading page
-        self.current_round += 1
         self.LOGS[self.current_round]['word'] = word
 
     def check(self, stimulus_out, stimulus):
         '''Check if the stimulus chosen by the receiver is correct'''
+        self.n_checks += 1
         if self.current_round <= self.rounds:
             self.LOGS[self.current_round]['stimulus_out'] = stimulus_out
             if stimulus_out == stimulus:
                 # if correct, increment score
-                self.score += 1
+                if self.n_checks == 1:
+                    self.score += 1
                 self.LOGS[self.current_round]['correct'] = True
                 self.LOGS[self.current_round]['score'] = self.score
                 return True
