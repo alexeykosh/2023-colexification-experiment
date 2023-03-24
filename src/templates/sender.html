@@ -5,13 +5,12 @@
     <link href="/static/style.css" rel="stylesheet">
   </head>
   <body>
-    <div class="score-row">
-      <p>Player: ... Score: ...</p>
-    </div>
+    <div class="topright">Score: ...</div>
     <div class="top-row">
-      <h2>Choose the word to send the shape above:</h2>
+      <img id="image">
+      <h2>Choose one of the words to send the shape above:</h2>
     </div>
-    <div class="button-container">
+    <div class="bottom-row">
       <button id="button1" onmousedown="startTimer(1)" onmouseup="stopTimer(1)">rabu</button>
       <button id="button2" onmousedown="startTimer(2)" onmouseup="stopTimer(2)">tabudiga</button>
     </div>
@@ -59,9 +58,8 @@
 
       // Receive 'stimulus' event and add image to the DOM
       socket.on('stimulus', function(data) {
-        const img = document.createElement('img');
-        img.src = data.st;
-        document.body.insertBefore(img, document.body.firstChild);
+        imgSrc = data.st;
+        document.getElementById('image').src = imgSrc;;
       });
 
     </script>

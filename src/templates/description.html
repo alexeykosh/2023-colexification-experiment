@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Alien Language Game</title>
+	<style>
+		body {
+            display: flex;
+			flex-direction: column;
+			align-items: center;
+            margin: auto;
+            width: 640px; 
+            padding: 50px;
+            font-family: 'Lexend Deca', sans-serif; 
+            color: #2E475D;    
+            text-align: left;
+            background-color: #e6f2ff;;
+        }
+		main {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			max-width: 50%;
+			margin-top: 50px;
+			margin-bottom: 50px;
+		}
+		img {
+            /* center images */
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+			max-width: 100%;
+		}
+		button {
+			display: none;
+			margin-top: 50px;
+			font-size: 20px;
+			padding: 10px 20px;
+			background-color: #4CAF50;
+			color: white;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+		}
+		button.show {
+			display: block;
+		}
+	</style>
+</head>
+<body>
+	<h1>Welcome to the game!</h1>
+	<p>In this game, your task is to learn an alien language with a partner. You will be doing this by acting in two roles: as the sender and the receiver. When playing as a sender, your task will be presented with images similar to the one below:</p>
+	<img src="/static/stimuli/T-r.png">
+	<p>This image consists of a triangle (the shape) and a box with two squares (the context). The context is the position in the box — it can be either right square (as shown in the image above) or left square. Your goal here is to choose between two words from this alien language presented below to send the message about the shape you see to your partner (the receiver). For instance, you can be given two words: atab and burikitano.</p>
+	<p>To send a longer word (e.g. burikitano), press and hold for 5 seconds. For shorter words (e.g. atab), press and hold for 2 seconds. The goal of your partner (the receiver) would be to guess the shape that you meant by the word you send. In addition to the word, he will be provided with the context that you were given (in this case, he will be notified that your shape was on the left of the box). If he guesses correctly, you both get one point. Then, you will be assigned the role of the receiver, and your partner will become the sender.</p>
+	<p>As a receiver, your goal is to guess the shape that your partner (the sender) has encoded in the word that he sent. You will be presented with the interface which will look like this:</p>
+	<img src="/static/interface/receiver.png">
+	<p>As you can see from the figure above, you will be presented with the word (highlighted in purple) and the context (in this case, the indication that the shape that this word corresponds to is on the right). Your goal here is to choose the shape that you think this word corresponds to. If you guess correctly, you and your partner will both receive one point. Then, you will switch your roles again.</p>
+	<button id="continueBtn" style="display: none;">Continue</button>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
+    <script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        const socket = io();
+
+        socket.on('connect', function() {
+            socket.emit('joinedDescription');
+        });
+
+		setTimeout(function() {
+			document.getElementById("continueBtn").style.display = "block";
+            socket.emit('readyToContinue');
+		}, 10000);
+
+        socket.on('redirect', function(data) {
+            window.location.href = data.url;
+        });
+	</script>
+</body>
+</html>

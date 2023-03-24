@@ -17,10 +17,9 @@ body {
 
 .score-row {
     /* position items in the top right corner of the page */
-    display: flex;
-    justify-content: flex-end;
-    align-items: flex-start;
-    flex-direction: row;
+    position: absolute; 
+    right: 0; 
+    top: 0; 
 }
 
 .top-row {
@@ -31,14 +30,16 @@ body {
     width: 100%;
 }
 
-.button-container {
-    /* position a set of button in the center of the page and allign them in row */
+.bottom-row {
+    /* position a set of buttons in the center of the page and allign them in row */
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: row;
     /* make the buttons to be the same size */
     width: 100%;
+    /* increase the size */
+    font-size: 20px;
 }
 
 /* make all images to be the same size while keeping proportions */

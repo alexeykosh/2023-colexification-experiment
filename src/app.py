@@ -54,6 +54,10 @@ def index():
             pass
     return render_template('index.html')
 
+@app.route('/description')
+def description():
+    return render_template('description.html')
+
 @app.route('/wait')
 def wait():
     user = request.cookies.get('user')
@@ -84,15 +88,16 @@ def endgame():
 @socketio.on('joinedWaiting')
 def joined_waiting_room():
     global game 
-
-    sleep(5)
     user = request.cookies.get('user')
     experiment_id = int(request.cookies.get('experiment_id'))
     game = Game({'T': ['r'], 'C': ['l'], 'S': ['r', 'l']}, rounds=10)
-    if experiments[experiment_id]['receiver'] == user:
-        socketio.emit('redirect', {'url': '/stand_by'}, room=request.sid)
-    elif experiments[experiment_id]['sender'] == user:
-        socketio.emit('redirect', {'url': '/sender'}, room=request.sid)
+    while experiments[experiment_id]['sender'] is None:
+        sleep(0.1)
+    else:
+        if experiments[experiment_id]['receiver'] == user:
+            socketio.emit('redirect', {'url': '/stand_by'}, room=request.sid)
+        elif experiments[experiment_id]['sender'] == user:
+            socketio.emit('redirect', {'url': '/sender'}, room=request.sid)
 
 @socketio.on('joinedSender')
 def joined_sender():
@@ -156,7 +161,6 @@ def joined_result():
         socketio.emit('redirect', {'url': '/endgame'}, room=request.sid)
         game.save_logs()
         # need to be carefull here!
-        # del game 
         pass
 
 @socketio.on('joinedEndGame')
