@@ -91,6 +91,12 @@ def ready_to_continue():
 
 @socketio.on('joinedWaiting')
 def joined_waiting_room():
+    '''
+    To-do:
+
+    - How to account for randomized stimuli? One way is to have n folders with identical 
+    filenames and then randomly select one of the folders.
+    '''
     global game 
     user = request.cookies.get('user')
     experiment_id = int(request.cookies.get('experiment_id'))
@@ -119,6 +125,11 @@ def joined_receiver():
 
 @socketio.on('buttonPressedSender')
 def button_pressed(button_id):
+    '''
+    To-do:
+
+    - Solve the issue with the receiver being redirected using the broadcast=True.
+    '''
     global word 
 
     button_ids = {1: 'rabu', 2: 'tabudiga'}
@@ -169,8 +180,12 @@ def joined_result():
 
 @socketio.on('joinedEndGame')
 def joined_endgame():
-    # divided by 2 because each user has to do 10 rounds so 2 increments
-    # needs fixing
+    '''
+    To-do:
+
+    - Score is incremented for both players, so it needs to be divided by 2. Update
+    the game class to resolve this issue.
+    '''
     socketio.emit('score', {'score': game.score/2}, room=request.sid)
 
 if __name__ == '__main__':
