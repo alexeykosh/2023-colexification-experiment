@@ -7,12 +7,13 @@
   <body>
     <div class="top-row">
       <img id="image">
-      <h2>Choose one of the words to send the shape above:</h2>
+      <h2>Choose one of the messages to describe the shape above to your partner:</h2>
     </div>
     <div class="bottom-row">
       <button id="button1" onmousedown="startTimer(1)" onmouseup="stopTimer(1)">rabu</button>
       <button id="button2" onmousedown="startTimer(2)" onmouseup="stopTimer(2)">tabudiga</button>
     </div>
+    <p id="reminder" >
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
     <script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript" charset="utf-8">
@@ -33,11 +34,11 @@
         if (buttonId === 1) {
           timer1 = setTimeout(function() {
             socket.emit('buttonPressedSender', buttonId);
-          }, 100);
+          }, 1000); // Changed from 100 to 1000
         } else if (buttonId === 2) {
           timer2 = setTimeout(function() {
             socket.emit('buttonPressedSender', buttonId);
-          }, 300);
+          }, 4000); // Changed from 300 to 3000
         }
       }
 
@@ -50,7 +51,7 @@
         }
       }
 
-      // if receive 'redirect' reidrect to the url
+      // if receive 'redirect' redirect to the url
       socket.on('redirect', function(data) {
           window.location.href = data.url;
       });
@@ -61,6 +62,10 @@
         document.getElementById('image').src = imgSrc;;
       });
 
+      setTimeout(function() {
+        const reminderText = "Longer messages require a 4 seconds press and hold to be sent, and shorter words require 1 second press and hold only.";
+        $('#reminder').text(reminderText);
+		  }, 2500);
     </script>
   </body>
 </html>

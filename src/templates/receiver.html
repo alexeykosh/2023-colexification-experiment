@@ -15,6 +15,7 @@
       <button onclick="sendButtonId(2)"><img src="static/shapes/S.png" alt="Button 2"></button>
       <button onclick="sendButtonId(3)"><img src="static/shapes/T.png" alt="Button 3"></button>
     </div>
+    <p id="reminder" style="font-size: small; font-style: italic;"></p>
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
     <script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript" charset="utf-8">
@@ -39,10 +40,16 @@
         socket.on('contextWord', (data) => {
           const word = data.word;
           const imgSrc = data.img;
-          const message = `You received the word <span style="color: #ff1493">${word}</span> and the following context:`;
+          const message = `You received the message <span style="color: #ff1493">${word}</span> and the shape is this position:`;
           document.getElementById('message').innerHTML = message;
           document.getElementById('image').src = imgSrc;
         });
+
+
+        setTimeout(function() {
+          const reminderText = "The red dot on the figure corresponds to the position of the shape that your partner encoded in the message.";
+          $('#reminder').text(reminderText);
+        }, 500);
     </script>
   </body>
 </html>

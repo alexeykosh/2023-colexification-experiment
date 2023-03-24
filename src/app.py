@@ -101,7 +101,7 @@ def joined_waiting_room():
     global game 
     user = request.cookies.get('user')
     experiment_id = int(request.cookies.get('experiment_id'))
-    game = Game({'T': ['r'], 'C': ['l'], 'S': ['r', 'l']}, rounds=NTRIALS)
+    game = Game({'T': ['r'], 'C': ['l'], 'S': ['r', 'l']}, rounds=NROUNDS)
     while experiments[experiment_id]['sender'] is None:
         # waiting for receiver to join 
         sleep(1)

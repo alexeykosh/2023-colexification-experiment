@@ -33,8 +33,25 @@ body {
     flex-direction: row;
     /* make the buttons to be the same size */
     width: 100%;
-    /* increase the size */
+}
+
+button {
+    margin-top: 10px;
     font-size: 20px;
+    padding: 10px 10px;
+    background-color: #90909e;
+    color: white;
+    border: 10px;
+    /* make border radius smooth */
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+    margin: 5px;
+}
+
+/* change button color when pressed */
+button:active {
+    background-color: #000000;
 }
 
 /* make all images to be the same size while keeping proportions */
@@ -48,4 +65,15 @@ img {
     margin-left: auto;
     margin-right: auto;
     /* add equal borders on top and on the bottom of the image */
+}
+
+/* everything with the class reminder everything should be centered */
+.reminder {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+    font-size: small;
+    font-style: italic;
 }
