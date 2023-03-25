@@ -10,12 +10,19 @@
       <form method="post">
         <label for="nickname">Username:</label>
         <input type="text" id="nickname" name="nickname" required>
-        <br><br>
+        <p id="reminder" style="font-size: small; font-style: italic;"></p>
         <!-- <p>Press ENTER to start</p> -->
         <!-- <div class="bottom-row">
           <input type="submit" value="Join the Queue">
         <div class="bottom-row"> -->
       </form>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
+      <script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
+      <script type="text/javascript" charset="utf-8">
+          setTimeout(function() {
+            const reminderText = "Please enter your username and press ENTER to start the game.";
+            $('#reminder').text(reminderText);
+          }, 500);
     <div class="top-row">
   </body>
 </html>
