@@ -14,6 +14,9 @@ class Game:
         self.score = 0
 
         self.n_checks = 0
+        self.c_stimulus = None
+        self.c_context = None
+        self.c_word = None
 
         self.LOGS = defaultdict(dict)
 
@@ -32,7 +35,10 @@ class Game:
         self.current_round += 1
         self.LOGS[self.current_round]['stimulus'] = stimulus
         self.LOGS[self.current_round]['context'] = context
+
         self.n_checks = 0
+        self.c_stimulus = stimulus
+        self.c_context = context
         return str(stimulus), str(context)
     
     def log_word(self, word):
@@ -40,6 +46,7 @@ class Game:
         # NB: this is moved from generate_sc to avoid adding counts
         # when reloading page
         self.LOGS[self.current_round]['word'] = word
+        self.c_word = word
 
     def check(self, stimulus_out, stimulus):
         '''Check if the stimulus chosen by the receiver is correct'''

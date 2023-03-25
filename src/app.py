@@ -10,9 +10,13 @@ from collections import defaultdict
 from game import Game
 import os
 
+### FLASK SETUP ###
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'fdhjdfkhv!JJJfdsjkkjnsd'
 socketio = SocketIO(app)
+app.config['STIMULI_FOLDER'] = os.path.join('static', 'stimuli')
+app.config['CONTEXT_FOLDER'] = os.path.join('static', 'context')
 
 ### GLOBAL ###
 
@@ -20,13 +24,6 @@ NROUNDS = 20
 queue = []
 experiments = defaultdict(dict)
 experiments_queue = []
-
-### FOLDERS ###
-
-STIMULI_FOLDER = os.path.join('static', 'stimuli')
-app.config['STIMULI_FOLDER'] = STIMULI_FOLDER
-CONTEXT_FOLDER = os.path.join('static', 'context')
-app.config['CONTEXT_FOLDER'] = CONTEXT_FOLDER
 
 ### ROUTES ###
 
@@ -98,14 +95,15 @@ def joined_waiting_room():
     - How to account for randomized stimuli? One way is to have n folders with identical 
     filenames and then randomly select one of the folders.
     '''
-    global game 
+    # global game 
     user = request.cookies.get('user')
     experiment_id = int(request.cookies.get('experiment_id'))
-    game = Game({'T': ['r'], 'C': ['l'], 'S': ['r', 'l']}, rounds=NROUNDS)
     while experiments[experiment_id]['sender'] is None:
         # waiting for receiver to join 
         sleep(1)
     else:
+        game = Game({'T': ['r'], 'C': ['l'], 'S': ['r', 'l']}, rounds=NROUNDS)
+        experiments[experiment_id]['game'] = game
         if experiments[experiment_id]['receiver'] == user:
             socketio.emit('redirect', {'url': '/stand_by'}, room=request.sid)
         elif experiments[experiment_id]['sender'] == user:
@@ -116,6 +114,8 @@ def joined_sender():
     global context
     global stimulus
 
+    experiment_id = int(request.cookies.get('experiment_id'))
+    game = experiments[experiment_id]['game']
     stimulus, context = game.generate_sc()
     socketio.emit('stimulus', {'st': os.path.join(app.config['STIMULI_FOLDER'], 
                                                   f'{stimulus}-{context}.png')}, room=request.sid)
@@ -134,18 +134,25 @@ def button_pressed(button_id):
     '''
     global word 
 
+    user = request.cookies.get('user')
+    experiment_id = int(request.cookies.get('experiment_id'))
+    game = experiments[experiment_id]['game']
+
     button_ids = {1: 'rabu', 2: 'tabudiga'}
     game.log_word(button_ids[button_id])
     word = button_ids[button_id]
-    user = request.cookies.get('user')
     experiment_id = int(request.cookies.get('experiment_id'))
     if experiments[experiment_id]['sender'] == user:
-        print('b')
         socketio.emit('redirect', {'url': '/stand_by'}, room=request.sid)
     socketio.emit('redirect', {'url': '/receiver'}, include_self=False)
 
 @socketio.on('buttonPressedReceiver')
 def button_pressed(button_id):
+    '''
+    To-do:
+
+    - Remove the global variables and put them into the game class. 
+    '''
     global stimulus_out 
     global old_sender
     global old_receiver
@@ -159,8 +166,9 @@ def button_pressed(button_id):
 
 @socketio.on('joinedResult')
 def joined_result():
+    experiment_id = int(request.cookies.get('experiment_id'))
+    game = experiments[experiment_id]['game']
     try:
-        experiment_id = int(request.cookies.get('experiment_id'))
         user = request.cookies.get('user')
         map_result = {True: 'Correct!', False: 'Incorrect!'}
         result = game.check(stimulus_out=stimulus_out, stimulus=stimulus)
@@ -182,6 +190,8 @@ def joined_result():
 
 @socketio.on('joinedEndGame')
 def joined_endgame():
+    experiment_id = int(request.cookies.get('experiment_id'))
+    game = experiments[experiment_id]['game']
     '''
     To-do:
 
