@@ -14,6 +14,10 @@
 			// Connect to the Socket.io server
 			const socket = io();
 			// if receive 'redirect' reidrect to the url
+			// emit "joinedStandBy" to the server
+			socket.on('connect', function() {
+				socket.emit('joinedStandBy');
+			});
 
 			socket.on('redirect', function(data) {
 				window.location.href = data.url;

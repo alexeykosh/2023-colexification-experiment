@@ -111,6 +111,17 @@ def joined_waiting_room():
         elif experiments[experiment_id]['sender'] == user:
             socketio.emit('redirect', {'url': '/sender'}, room=request.sid)
 
+@socketio.on('joinedStandBy')
+def joined_stand_by():
+    # if the user is the receiver, save sid to dict
+    user = request.cookies.get('user')
+    experiment_id = int(request.cookies.get('experiment_id'))
+    if experiments[experiment_id]['receiver'] == user:
+        experiments[experiment_id]['receiver_sid'] = request.sid
+    elif experiments[experiment_id]['sender'] == user:
+        experiments[experiment_id]['sender_sid'] = request.sid
+        
+
 @socketio.on('joinedSender')
 def joined_sender():
     # global context
@@ -122,8 +133,8 @@ def joined_sender():
 
     if (stimulus, context) == (game.c_stimulus, game.c_context):
         '############ OK here ############'
-    socketio.emit('stimulus', {'st': os.path.join(app.config['STIMULI_FOLDER'], 
-                                                  f'{stimulus}-{context}.png')}, room=request.sid)
+        socketio.emit('stimulus', {'st': os.path.join(app.config['STIMULI_FOLDER'], 
+                                                    f'{stimulus}-{context}.png')}, room=request.sid)
 
 @socketio.on('buttonPressedSender')
 def button_pressed(button_id):
@@ -144,7 +155,7 @@ def button_pressed(button_id):
     experiment_id = int(request.cookies.get('experiment_id'))
     if experiments[experiment_id]['sender'] == user:
         socketio.emit('redirect', {'url': '/stand_by'}, room=request.sid)
-    socketio.emit('redirect', {'url': '/receiver'}, include_self=False)
+    socketio.emit('redirect', {'url': '/receiver'}, room=experiments[experiment_id]['receiver_sid'])
 
 @socketio.on('joinedReceiver')
 def joined_receiver():
@@ -169,7 +180,8 @@ def button_pressed(button_id):
     experiment_id = int(request.cookies.get('experiment_id'))
     game = experiments[experiment_id]['game']
     game.c_stimulus_out = button_ids[button_id]
-    socketio.emit('redirect', {'url': '/result'}, broadcast=True)
+    socketio.emit('redirect', {'url': '/result'}, room=request.sid) 
+    socketio.emit('redirect', {'url': '/result'}, room=experiments[experiment_id]['sender_sid'])
     old_sender = experiments[experiment_id]['sender']
     old_receiver = experiments[experiment_id]['receiver']
 
@@ -192,10 +204,8 @@ def joined_result():
             experiments[experiment_id]['sender'] = old_receiver
             socketio.emit('redirect', {'url': '/sender'}, room=request.sid)
     except Exception:
-        # redirect to final page with score
         socketio.emit('redirect', {'url': '/endgame'}, room=request.sid)
         game.save_logs()
-        # need to be carefull here!
         pass
 
 @socketio.on('joinedEndGame')
