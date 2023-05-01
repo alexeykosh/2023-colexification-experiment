@@ -10,6 +10,9 @@ from collections import defaultdict
 from game import Game
 import os
 
+# to-do
+# 1. instead of using game, put the global stuff in experiments[experiment_id]
+
 ### FLASK SETUP ###
 
 app = Flask(__name__)
@@ -20,7 +23,7 @@ app.config['CONTEXT_FOLDER'] = os.path.join('static', 'context')
 
 ### GLOBAL ###
 
-NROUNDS = 20
+NROUNDS = 5
 queue = []
 experiments = defaultdict(dict)
 experiments_queue = []
@@ -98,12 +101,11 @@ def joined_waiting_room():
     # global game 
     user = request.cookies.get('user')
     experiment_id = int(request.cookies.get('experiment_id'))
+    experiments[experiment_id]['game'] = Game({'T': ['r'], 'C': ['l'], 'S': ['r', 'l']}, rounds=NROUNDS)
     while experiments[experiment_id]['sender'] is None:
         # waiting for receiver to join 
         sleep(1)
     else:
-        game = Game({'T': ['r'], 'C': ['l'], 'S': ['r', 'l']}, rounds=NROUNDS)
-        experiments[experiment_id]['game'] = game
         if experiments[experiment_id]['receiver'] == user:
             socketio.emit('redirect', {'url': '/stand_by'}, room=request.sid)
         elif experiments[experiment_id]['sender'] == user:
@@ -111,19 +113,17 @@ def joined_waiting_room():
 
 @socketio.on('joinedSender')
 def joined_sender():
-    global context
-    global stimulus
+    # global context
+    # global stimulus
 
     experiment_id = int(request.cookies.get('experiment_id'))
     game = experiments[experiment_id]['game']
     stimulus, context = game.generate_sc()
+
+    if (stimulus, context) == (game.c_stimulus, game.c_context):
+        '############ OK here ############'
     socketio.emit('stimulus', {'st': os.path.join(app.config['STIMULI_FOLDER'], 
                                                   f'{stimulus}-{context}.png')}, room=request.sid)
-
-@socketio.on('joinedReceiver')
-def joined_receiver():
-    socketio.emit('contextWord', {'img': os.path.join(app.config['CONTEXT_FOLDER'], f'{context}.png'), 
-                                  'word': word}, room=request.sid)
 
 @socketio.on('buttonPressedSender')
 def button_pressed(button_id):
@@ -132,7 +132,7 @@ def button_pressed(button_id):
 
     - Solve the issue with the receiver being redirected using the broadcast=True.
     '''
-    global word 
+    # global word 
 
     user = request.cookies.get('user')
     experiment_id = int(request.cookies.get('experiment_id'))
@@ -140,11 +140,19 @@ def button_pressed(button_id):
 
     button_ids = {1: 'rabu', 2: 'tabudiga'}
     game.log_word(button_ids[button_id])
-    word = button_ids[button_id]
+    # word = button_ids[button_id]
     experiment_id = int(request.cookies.get('experiment_id'))
     if experiments[experiment_id]['sender'] == user:
         socketio.emit('redirect', {'url': '/stand_by'}, room=request.sid)
     socketio.emit('redirect', {'url': '/receiver'}, include_self=False)
+
+@socketio.on('joinedReceiver')
+def joined_receiver():
+    experiment_id = int(request.cookies.get('experiment_id')) 
+    game = experiments[experiment_id]['game']
+    context = game.c_context
+    socketio.emit('contextWord', {'img': os.path.join(app.config['CONTEXT_FOLDER'], f'{context}.png'), 
+                                  'word': game.c_word}, room=request.sid)
 
 @socketio.on('buttonPressedReceiver')
 def button_pressed(button_id):
@@ -153,13 +161,14 @@ def button_pressed(button_id):
 
     - Remove the global variables and put them into the game class. 
     '''
-    global stimulus_out 
+    # global stimulus_out 
     global old_sender
     global old_receiver
 
     button_ids = {1: 'C', 2: 'S', 3: 'T'}
     experiment_id = int(request.cookies.get('experiment_id'))
-    stimulus_out = button_ids[button_id]
+    game = experiments[experiment_id]['game']
+    game.c_stimulus_out = button_ids[button_id]
     socketio.emit('redirect', {'url': '/result'}, broadcast=True)
     old_sender = experiments[experiment_id]['sender']
     old_receiver = experiments[experiment_id]['receiver']
@@ -168,10 +177,11 @@ def button_pressed(button_id):
 def joined_result():
     experiment_id = int(request.cookies.get('experiment_id'))
     game = experiments[experiment_id]['game']
+    stimulus_out = game.c_stimulus_out
     try:
         user = request.cookies.get('user')
         map_result = {True: 'Correct!', False: 'Incorrect!'}
-        result = game.check(stimulus_out=stimulus_out, stimulus=stimulus)
+        result = game.check(stimulus_out=stimulus_out)
         socketio.emit('resultCheck', {'message': map_result[result]}, room=request.sid)
         print(experiments[experiment_id])
         sleep(5)
@@ -192,13 +202,7 @@ def joined_result():
 def joined_endgame():
     experiment_id = int(request.cookies.get('experiment_id'))
     game = experiments[experiment_id]['game']
-    '''
-    To-do:
-
-    - Score is incremented for both players, so it needs to be divided by 2. Update
-    the game class to resolve this issue.
-    '''
-    socketio.emit('score', {'score': game.score}, room=request.sid)
+    socketio.emit('score', {'score': game.score / 2}, room=request.sid)
 
 if __name__ == '__main__':
-    socketio.run(app, debug=False, port=9000)
+    socketio.run(app, debug=False, port=9001)

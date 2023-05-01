@@ -17,6 +17,7 @@ class Game:
         self.c_stimulus = None
         self.c_context = None
         self.c_word = None
+        self.c_stimulus_out = None
 
         self.LOGS = defaultdict(dict)
 
@@ -35,10 +36,9 @@ class Game:
         self.current_round += 1
         self.LOGS[self.current_round]['stimulus'] = stimulus
         self.LOGS[self.current_round]['context'] = context
-
-        self.n_checks = 0
-        self.c_stimulus = stimulus
-        self.c_context = context
+        
+        self.c_stimulus = str(stimulus)
+        self.c_context = str(context)
         return str(stimulus), str(context)
     
     def log_word(self, word):
@@ -48,22 +48,25 @@ class Game:
         self.LOGS[self.current_round]['word'] = word
         self.c_word = word
 
-    def check(self, stimulus_out, stimulus):
+    def check(self, stimulus_out):
         '''Check if the stimulus chosen by the receiver is correct'''
         self.n_checks += 1
         if self.current_round <= self.rounds:
             self.LOGS[self.current_round]['stimulus_out'] = stimulus_out
-            if stimulus_out == stimulus:
+            # self.c_stimulus_out = stimulus_out
+            if stimulus_out == self.c_stimulus:
                 # if correct, increment score
                 if self.n_checks == 1:
                     self.score += 1
                 self.LOGS[self.current_round]['correct'] = True
                 self.LOGS[self.current_round]['score'] = self.score
+                self.n_checks = 0
                 return True
             else:
                 # if wrong, do not increment score
                 self.LOGS[self.current_round]['correct'] = False
                 self.LOGS[self.current_round]['score'] = self.score
+                self.n_checks = 0
                 return False
         else:
             # remove last entry from logs
