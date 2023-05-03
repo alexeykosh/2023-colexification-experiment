@@ -22,6 +22,15 @@
         // Connect to the Socket.io server
         const socket = io();
 
+        window.history.forward();
+        function disableBack() {
+          window.history.forward();
+        }
+        setTimeout("disableBack()", 0);
+        window.onunload = function () {
+          null;
+        };
+
         // If connected, send the 'joined' event
         socket.on('connect', function() {
           socket.emit('joinedReceiver');

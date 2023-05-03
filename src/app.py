@@ -190,20 +190,20 @@ def joined_result():
     experiment_id = int(request.cookies.get('experiment_id'))
     game = experiments[experiment_id]['game']
     stimulus_out = game.c_stimulus_out
-    try:
-        user = request.cookies.get('user')
-        map_result = {True: 'Correct!', False: 'Incorrect!'}
-        result = game.check(stimulus_out=stimulus_out)
+    user = request.cookies.get('user')
+    map_result = {True: 'Correct!', False: 'Incorrect!'}
+    result = game.check(stimulus_out=stimulus_out)
+    if game.current_round < NROUNDS:
         socketio.emit('resultCheck', {'message': map_result[result]}, room=request.sid)
         print(experiments[experiment_id])
-        sleep(5)
+        sleep(2)
         if old_sender == user:
             experiments[experiment_id]['receiver'] = old_sender
             socketio.emit('redirect', {'url': '/stand_by'}, room=request.sid)
         elif old_receiver == user:
             experiments[experiment_id]['sender'] = old_receiver
             socketio.emit('redirect', {'url': '/sender'}, room=request.sid)
-    except Exception:
+    else:
         socketio.emit('redirect', {'url': '/endgame'}, room=request.sid)
         game.save_logs()
         pass
@@ -212,7 +212,7 @@ def joined_result():
 def joined_endgame():
     experiment_id = int(request.cookies.get('experiment_id'))
     game = experiments[experiment_id]['game']
-    socketio.emit('score', {'score': game.score / 2}, room=request.sid)
+    socketio.emit('score', {'score': game.score}, room=request.sid)
 
 if __name__ == '__main__':
     socketio.run(app, debug=False, port=9001)

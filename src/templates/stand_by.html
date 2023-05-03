@@ -13,6 +13,15 @@
 		<script type="text/javascript" charset="utf-8">
 			// Connect to the Socket.io server
 			const socket = io();
+
+			window.history.forward();
+			function disableBack() {
+				window.history.forward();
+			}
+			setTimeout("disableBack()", 0);
+			window.onunload = function () {
+				null;
+			};
 			// if receive 'redirect' reidrect to the url
 			// emit "joinedStandBy" to the server
 			socket.on('connect', function() {

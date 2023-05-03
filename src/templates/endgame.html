@@ -12,6 +12,16 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
     <script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+      
+        window.history.forward();
+        function disableBack() {
+          window.history.forward();
+        }
+        setTimeout("disableBack()", 0);
+        window.onunload = function () {
+          null;
+        };
+
         const socket = io();
 
 

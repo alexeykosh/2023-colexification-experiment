@@ -13,6 +13,15 @@
 		// Connect to the Socket.IO server
 		var socket = io();
 
+		// window.history.forward();
+		// function disableBack() {
+		// 	window.history.forward();
+		// }
+		// setTimeout("disableBack()", 0);
+		// window.onunload = function () {
+		// 	null;
+		// };
+
         socket.on('connect', function() {
             socket.emit('joinedResult');
         });

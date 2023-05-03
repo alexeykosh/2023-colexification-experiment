@@ -29,11 +29,13 @@ class Game:
         - Add stimuli and context to global variables to eliminate 
         global in the server.
         '''
+        self.n_checks += 1
         stimulus = np.random.choice(list(self.stimuli_context.keys()), 
                                     p=[self.stimuli_prob[s] for s in self.stimuli_context])
         context = np.random.choice(self.stimuli_context[stimulus],
                                       p=[self.stimuli_context_prob[stimulus][c] for c in self.stimuli_context[stimulus]])
-        self.current_round += 1
+        if self.n_checks == 1:
+            self.current_round += 1
         self.LOGS[self.current_round]['stimulus'] = stimulus
         self.LOGS[self.current_round]['context'] = context
         
@@ -47,33 +49,27 @@ class Game:
         # when reloading page
         self.LOGS[self.current_round]['word'] = word
         self.c_word = word
+        self.n_checks = 0
 
     def check(self, stimulus_out):
         '''Check if the stimulus chosen by the receiver is correct'''
         self.n_checks += 1
-        if self.current_round <= self.rounds:
-            self.LOGS[self.current_round]['stimulus_out'] = stimulus_out
-            # self.c_stimulus_out = stimulus_out
-            if stimulus_out == self.c_stimulus:
-                # if correct, increment score
-                if self.n_checks == 1:
-                    self.score += 1
-                self.LOGS[self.current_round]['correct'] = True
-                self.LOGS[self.current_round]['score'] = self.score
-                self.n_checks = 0
-                return True
-            else:
-                # if wrong, do not increment score
-                self.LOGS[self.current_round]['correct'] = False
-                self.LOGS[self.current_round]['score'] = self.score
-                self.n_checks = 0
-                return False
+        # self.c_stimulus_out = stimulus_out
+        self.LOGS[self.current_round]['stimulus_out'] = stimulus_out
+        if stimulus_out == self.c_stimulus:
+            # if correct, increment score
+            if self.n_checks == 1:
+                self.score += 1
+            self.LOGS[self.current_round]['correct'] = True
+            self.LOGS[self.current_round]['score'] = self.score
+            self.n_checks = 0
+            return True
         else:
-            # remove last entry from logs
-            self.LOGS.pop(self.current_round)
-            # # save logs to json file
-            # self.save_logs()
-            raise Exception('Game has ended')
+            # if wrong, do not increment score
+            self.LOGS[self.current_round]['correct'] = False
+            self.LOGS[self.current_round]['score'] = self.score
+            self.n_checks = 0
+            return False
     
     def save_logs(self):
         # save logs to json file
