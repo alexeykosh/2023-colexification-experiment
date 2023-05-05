@@ -5,6 +5,9 @@
 		<link href="/static/style.css" rel="stylesheet">
 	</head>
 	<body>
+		<div class="score-round">
+			Score: <span id="score"></span> | Round: <span id="round"></span>/50
+		</div>
 		<div class="top-row">
 			<h2>Waiting for Player 1<span class="dots"></span></h2>
 		</div>
@@ -30,6 +33,12 @@
 
 			socket.on('redirect', function(data) {
 				window.location.href = data.url;
+			});
+
+			// update score and round in the HTML
+			socket.on('updateScoreRound', function(data) {
+				$('#score').text(data.score);
+				$('#round').text(data.round);
 			});
 		</script>
 	</body>

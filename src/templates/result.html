@@ -5,26 +5,31 @@
     <link href="/static/style.css" rel="stylesheet">
 </head>
 <body>
+	<div class="score-round">
+		Score: <span id="score"></span> | Round: <span id="round"></span>/50
+	</div>
 	<div class="top-row">
 		<h2 id="status"></span></h2>
 	</div>
-	<script src="https://cdn.socket.io/socket.io-3.0.1.min.js"></script>
-	<script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
+	<script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script type="text/javascript" charset="utf-8">
 		// Connect to the Socket.IO server
 		var socket = io();
 
-		// window.history.forward();
-		// function disableBack() {
-		// 	window.history.forward();
-		// }
-		// setTimeout("disableBack()", 0);
-		// window.onunload = function () {
-		// 	null;
-		// };
+		window.history.forward();
+		function disableBack() {
+			window.history.forward();
+		}
+		setTimeout("disableBack()", 0);
+		window.onunload = function () {
+			null;
+		};
 
         socket.on('connect', function() {
             socket.emit('joinedResult');
         });
+
 
 		// Listen for the 'message' event
 		socket.on('resultCheck', function(data) {
@@ -34,15 +39,12 @@
 			// Update the content on the page
 			var statusElement = document.getElementById('status');
 			statusElement.innerHTML = message;
+
+			$('#score').text(data.score);
+			$('#round').text(data.round);
 		});
 
-		socket.on("resultCheck", function(data) {
-			var message = data.message;
-            var scoreDiv = document.getElementById("status");
-            scoreDiv.innerHTML = `${message}`;
-        });
-
-              // if receive 'redirect' reidrect to the url
+    	// if receive 'redirect' reidrect to the url
         socket.on('redirect', function(data) {
           window.location.href = data.url;
         });

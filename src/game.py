@@ -49,7 +49,6 @@ class Game:
         # when reloading page
         self.LOGS[self.current_round]['word'] = word
         self.c_word = word
-        self.n_checks = 0
 
     def check(self, stimulus_out):
         '''Check if the stimulus chosen by the receiver is correct'''
@@ -58,7 +57,7 @@ class Game:
         self.LOGS[self.current_round]['stimulus_out'] = stimulus_out
         if stimulus_out == self.c_stimulus:
             # if correct, increment score
-            if self.n_checks == 1:
+            if self.n_checks == 2:
                 self.score += 1
             self.LOGS[self.current_round]['correct'] = True
             self.LOGS[self.current_round]['score'] = self.score

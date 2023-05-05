@@ -43,11 +43,11 @@
         if (buttonId === 1) {
           timer1 = setTimeout(function() {
             socket.emit('buttonPressedSender', buttonId);
-          }, 1); // Changed from 100 to 1000
+          }, 1000); // Changed from 100 to 1000
         } else if (buttonId === 2) {
           timer2 = setTimeout(function() {
             socket.emit('buttonPressedSender', buttonId);
-          }, 1); // Changed from 300 to 3000
+          }, 4000); // Changed from 300 to 3000
         }
       }
 
@@ -72,9 +72,9 @@
       });
 
       setTimeout(function() {
-        const reminderText = "Longer messages require a 4 seconds press and hold to be sent, and shorter words require 1 second press and hold only.";
+        const reminderText = "Longer messages require a 4 seconds press and hold to be sent, and shorter words require 1 second press and hold.";
         $('#reminder').text(reminderText);
-		  }, 2500);
+		  }, 0);
     </script>
   </body>
 </html>

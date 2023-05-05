@@ -23,7 +23,7 @@ app.config['CONTEXT_FOLDER'] = os.path.join('static', 'context')
 
 ### GLOBAL ###
 
-NROUNDS = 5
+NROUNDS = 50    
 queue = []
 experiments = defaultdict(dict)
 experiments_queue = []
@@ -116,6 +116,15 @@ def joined_stand_by():
     # if the user is the receiver, save sid to dict
     user = request.cookies.get('user')
     experiment_id = int(request.cookies.get('experiment_id'))
+
+    game = experiments[experiment_id]['game']
+    # get score and round number
+    score = game.score
+    round_number = game.current_round
+
+    # emit "updateScoreRound" with score and round number
+    socketio.emit('updateScoreRound', {'score': score, 'round': round_number}, room=request.sid)
+
     if experiments[experiment_id]['receiver'] == user:
         experiments[experiment_id]['receiver_sid'] = request.sid
     elif experiments[experiment_id]['sender'] == user:
@@ -193,9 +202,12 @@ def joined_result():
     user = request.cookies.get('user')
     map_result = {True: 'Correct!', False: 'Incorrect!'}
     result = game.check(stimulus_out=stimulus_out)
+    score = game.score
+    round_number = game.current_round
+    print(score)
+    print(round_number)
     if game.current_round < NROUNDS:
-        socketio.emit('resultCheck', {'message': map_result[result]}, room=request.sid)
-        print(experiments[experiment_id])
+        socketio.emit('resultCheck', {'message': map_result[result], 'score': score, 'round': round_number}, room=request.sid)
         sleep(2)
         if old_sender == user:
             experiments[experiment_id]['receiver'] = old_sender
