@@ -9,7 +9,7 @@
       <img id="image">
       <h2>Choose one of the messages to describe the shape above to your partner:</h2>
     </div>
-    <div class="bottom-row">
+    <div class="bottom-row" id="button-container">
       <button id="button1" onmousedown="startTimer(1)" onmouseup="stopTimer(1)">rabu</button>
       <button id="button2" onmousedown="startTimer(2)" onmouseup="stopTimer(2)">tabudiga</button>
     </div>
@@ -19,6 +19,11 @@
     <script type="text/javascript" charset="utf-8">
       // Connect to the Socket.io server
       const socket = io();
+
+      const buttonContainer = document.getElementById('button-container');
+      const buttons = buttonContainer.getElementsByTagName('button');
+      const randomIndex = Math.floor(Math.random() * buttons.length);
+      buttonContainer.insertBefore(buttons[randomIndex], buttons[0]);
 
       window.history.forward();
       function disableBack() {

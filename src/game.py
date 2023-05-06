@@ -32,6 +32,9 @@ class Game:
         self.n_checks += 1
         stimulus = np.random.choice(list(self.stimuli_context.keys()), 
                                     p=[self.stimuli_prob[s] for s in self.stimuli_context])
+        while stimulus == self.c_stimulus:
+            stimulus = np.random.choice(list(self.stimuli_context.keys()), 
+                                        p=[self.stimuli_prob[s] for s in self.stimuli_context])
         context = np.random.choice(self.stimuli_context[stimulus],
                                       p=[self.stimuli_context_prob[stimulus][c] for c in self.stimuli_context[stimulus]])
         if self.n_checks == 1:

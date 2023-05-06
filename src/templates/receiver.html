@@ -10,10 +10,10 @@
       <img id="image">
       <h2> Which shape corresponds to that word? </h2>
     </div>
-    <div class="bottom-row">
-      <button onclick="sendButtonId(1)"><img src="static/shapes/C.png" alt="Button 1"></button>
-      <button onclick="sendButtonId(2)"><img src="static/shapes/S.png" alt="Button 2"></button>
-      <button onclick="sendButtonId(3)"><img src="static/shapes/T.png" alt="Button 3"></button>
+    <div class="bottom-row" id="button-container">
+      <button id="button-1" onclick="sendButtonId(1)"><img src="static/shapes/C.png" alt="Button 1"></button>
+      <button id="button-2" onclick="sendButtonId(2)"><img src="static/shapes/S.png" alt="Button 2"></button>
+      <button id="button-3" onclick="sendButtonId(3)"><img src="static/shapes/T.png" alt="Button 3"></button>
     </div>
     <p id="reminder" style="font-size: small; font-style: italic;"></p>
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
@@ -22,14 +22,9 @@
         // Connect to the Socket.io server
         const socket = io();
 
-        window.history.forward();
-        function disableBack() {
-          window.history.forward();
-        }
-        setTimeout("disableBack()", 0);
-        window.onunload = function () {
-          null;
-        };
+        const button1 = document.getElementById('button-1');
+        const button2 = document.getElementById('button-2');
+        const button3 = document.getElementById('button-3');
 
         // If connected, send the 'joined' event
         socket.on('connect', function() {
@@ -41,7 +36,7 @@
           socket.emit('buttonPressedReceiver', id);
         }
 
-        // if receive 'redirect' reidrect to the url
+        // if receive 'redirect' redirect to the url
         socket.on('redirect', function(data) {
             window.location.href = data.url;
         });
@@ -49,11 +44,22 @@
         socket.on('contextWord', (data) => {
           const word = data.word;
           const imgSrc = data.img;
-          const message = `You received the message <span style="color: #ff1493">${word}</span> and the shape is this position:`;
+          const message = `You received the message <span style="color: #ff1493">${word}</span> and the shape is in this position:`;
           document.getElementById('message').innerHTML = message;
           document.getElementById('image').src = imgSrc;
         });
 
+        socket.on('left', () => {
+          button1.style.display = 'inline-block';
+          button2.style.display = 'inline-block';
+          button3.style.display = 'none';
+        });
+
+        socket.on('right', () => {
+          button1.style.display = 'none';
+          button2.style.display = 'inline-block';
+          button3.style.display = 'inline-block';
+        });
 
         setTimeout(function() {
           const reminderText = "The red dot on the figure corresponds to the position of the shape that Player 1 encoded in the message.";
@@ -62,6 +68,3 @@
     </script>
   </body>
 </html>
-
-
-

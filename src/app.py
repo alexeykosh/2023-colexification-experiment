@@ -23,7 +23,7 @@ app.config['CONTEXT_FOLDER'] = os.path.join('static', 'context')
 
 ### GLOBAL ###
 
-NROUNDS = 50    
+NROUNDS = 10    
 queue = []
 experiments = defaultdict(dict)
 experiments_queue = []
@@ -140,10 +140,8 @@ def joined_sender():
     game = experiments[experiment_id]['game']
     stimulus, context = game.generate_sc()
 
-    if (stimulus, context) == (game.c_stimulus, game.c_context):
-        '############ OK here ############'
-        socketio.emit('stimulus', {'st': os.path.join(app.config['STIMULI_FOLDER'], 
-                                                    f'{stimulus}-{context}.png')}, room=request.sid)
+    socketio.emit('stimulus', {'st': os.path.join(app.config['STIMULI_FOLDER'], 
+                                                  f'{stimulus}-{context}.png')}, room=request.sid)
 
 @socketio.on('buttonPressedSender')
 def button_pressed(button_id):
@@ -171,6 +169,10 @@ def joined_receiver():
     experiment_id = int(request.cookies.get('experiment_id')) 
     game = experiments[experiment_id]['game']
     context = game.c_context
+    if context == 'r':
+        socketio.emit('right', room=request.sid)
+    elif context == 'l':
+        socketio.emit('left', room=request.sid)
     socketio.emit('contextWord', {'img': os.path.join(app.config['CONTEXT_FOLDER'], f'{context}.png'), 
                                   'word': game.c_word}, room=request.sid)
 
