@@ -23,7 +23,7 @@ app.config['CONTEXT_FOLDER'] = os.path.join('static', 'context')
 
 ### GLOBAL ###
 
-NROUNDS = 10    
+NROUNDS = 50    
 queue = []
 experiments = defaultdict(dict)
 experiments_queue = []
