@@ -6,10 +6,10 @@
 </head>
 <body>
 	<div class="score-round">
-		Score: <span id="score"></span> | Round: <span id="round"></span>/50
+		Score: <span id="score"></span> | Round: <span id="round"></span>/25
 	</div>
 	<div class="top-row">
-		<h2 id="status"></span></h2>
+		<h2 id="status"></h2>
 	</div>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
 	<script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -30,7 +30,6 @@
             socket.emit('joinedResult');
         });
 
-
 		// Listen for the 'message' event
 		socket.on('resultCheck', function(data) {
 			// Get the correct/incorrect message from the data
@@ -38,7 +37,11 @@
 
 			// Update the content on the page
 			var statusElement = document.getElementById('status');
-			statusElement.innerHTML = message;
+			if (message === 'Correct!') {
+				statusElement.innerHTML = message.bold().fontcolor('red').fontsize(100);
+			} else {
+				statusElement.innerHTML = message;
+			}
 
 			$('#score').text(data.score);
 			$('#round').text(data.round);

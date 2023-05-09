@@ -23,10 +23,11 @@ app.config['CONTEXT_FOLDER'] = os.path.join('static', 'context')
 
 ### GLOBAL ###
 
-NROUNDS = 50    
+NROUNDS = 25    
 queue = []
 experiments = defaultdict(dict)
 experiments_queue = []
+usernames = []
 
 ### ROUTES ###
 
@@ -38,25 +39,29 @@ def description():
 def index():
     if request.method == 'POST':
         user_in = request.form['nickname']
-        queue.append(user_in)
-        if len(queue) % 2 == 0:
-            experiment_id = experiments_queue.pop()
-            experiments[experiment_id]['sender'] = user_in
-            resp = make_response(redirect('/wait'))
-            resp.set_cookie('user', user_in)
-            resp.set_cookie('experiment_id', str(experiment_id))
-            return resp
-        elif len(queue) % 2 == 1:
-            experiment_id = random.randint(0, 1000000)
-            experiments_queue.append(experiment_id)
-            experiments[experiment_id]['receiver'] = user_in
-            experiments[experiment_id]['sender'] = None
-            resp = make_response(redirect('/wait'))
-            resp.set_cookie('user', user_in)
-            resp.set_cookie('experiment_id', str(experiment_id))
-            return resp
+        if user_in in usernames:
+            return render_template('index.html', error='You have already completed the experiment.')
         else:
-            pass
+            usernames.append(user_in)
+            queue.append(user_in)
+            if len(queue) % 2 == 0:
+                experiment_id = experiments_queue.pop()
+                experiments[experiment_id]['sender'] = user_in
+                resp = make_response(redirect('/wait'))
+                resp.set_cookie('user', user_in)
+                resp.set_cookie('experiment_id', str(experiment_id))
+                return resp
+            elif len(queue) % 2 == 1:
+                experiment_id = random.randint(0, 1000000)
+                experiments_queue.append(experiment_id)
+                experiments[experiment_id]['receiver'] = user_in
+                experiments[experiment_id]['sender'] = None
+                resp = make_response(redirect('/wait'))
+                resp.set_cookie('user', user_in)
+                resp.set_cookie('experiment_id', str(experiment_id))
+                return resp
+            else:
+                pass
     return render_template('index.html')
 
 @app.route('/wait')
@@ -83,6 +88,10 @@ def result():
 @app.route('/endgame')
 def endgame():
     return render_template('endgame.html')
+
+@app.route('/timeout')
+def timeout():
+    return render_template('timeout.html')
 
 ### SOCKET.IO ###
 
@@ -111,20 +120,20 @@ def joined_waiting_room():
         elif experiments[experiment_id]['sender'] == user:
             socketio.emit('redirect', {'url': '/sender'}, room=request.sid)
 
+@socketio.on('timerDone')
+def timer_done():
+    socketio.emit('redirect', {'url': '/timeout'}, room=request.sid)
+
 @socketio.on('joinedStandBy')
 def joined_stand_by():
     # if the user is the receiver, save sid to dict
     user = request.cookies.get('user')
     experiment_id = int(request.cookies.get('experiment_id'))
-
     game = experiments[experiment_id]['game']
-    # get score and round number
     score = game.score
     round_number = game.current_round
-
     # emit "updateScoreRound" with score and round number
     socketio.emit('updateScoreRound', {'score': score, 'round': round_number}, room=request.sid)
-
     if experiments[experiment_id]['receiver'] == user:
         experiments[experiment_id]['receiver_sid'] = request.sid
     elif experiments[experiment_id]['sender'] == user:
@@ -183,7 +192,7 @@ def button_pressed(button_id):
 
     - Remove the global variables and put them into the game class. 
     '''
-    # global stimulus_out 
+    # # global stimulus_out 
     global old_sender
     global old_receiver
 
@@ -191,10 +200,10 @@ def button_pressed(button_id):
     experiment_id = int(request.cookies.get('experiment_id'))
     game = experiments[experiment_id]['game']
     game.c_stimulus_out = button_ids[button_id]
-    socketio.emit('redirect', {'url': '/result'}, room=request.sid) 
-    socketio.emit('redirect', {'url': '/result'}, room=experiments[experiment_id]['sender_sid'])
     old_sender = experiments[experiment_id]['sender']
     old_receiver = experiments[experiment_id]['receiver']
+    socketio.emit('redirect', {'url': '/result'}, room=request.sid) 
+    socketio.emit('redirect', {'url': '/result'}, room=experiments[experiment_id]['sender_sid'])
 
 @socketio.on('joinedResult')
 def joined_result():
@@ -206,8 +215,6 @@ def joined_result():
     result = game.check(stimulus_out=stimulus_out)
     score = game.score
     round_number = game.current_round
-    print(score)
-    print(round_number)
     if game.current_round < NROUNDS:
         socketio.emit('resultCheck', {'message': map_result[result], 'score': score, 'round': round_number}, room=request.sid)
         sleep(2)

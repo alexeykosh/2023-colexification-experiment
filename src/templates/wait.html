@@ -3,12 +3,20 @@
 <head>
     <title>Waiting Room</title>
     <link href="/static/style.css" rel="stylesheet">
+    <style>
+        #timer {
+            font-size: 10em;
+            text-align: center;
+            margin-top: 50px;
+        }
+    </style>
 </head>
 <body>
     <div class="top-row">
         <h2>{{user}}, you are now in the waiting room. </h2> 
         <h2>Please wait for another participant to join.</h2>
-    <div class="top-row">
+    </div>
+    <div id="timer">00:00</div>
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
     <script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript" charset="utf-8">
@@ -23,6 +31,35 @@
         null;
     };
     
+    // Set the minutes for the timer
+    var minutes = 1;
+
+    var seconds = 0;
+    var timer = setInterval(function() {
+        // Update the timer every second
+        if (seconds == 0) {
+            if (minutes == 0) {
+                // When the timer reaches 0, redirect to another page
+                clearInterval(timer);
+                // emit that timer is done
+                socket.emit('timerDone');
+            } else {
+                minutes--;
+                seconds = 59;
+            }
+        } else {
+            seconds--;
+        }
+
+        // Format the time as mm:ss
+        var formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
+        var formattedSeconds = seconds < 10 ? '0' + seconds : seconds;
+        var timeString = formattedMinutes + ':' + formattedSeconds;
+
+        // Update the timer display
+        document.getElementById('timer').textContent = timeString;
+    }, 1000);
+
     socket.on('connect', function() {
         socket.emit('joinedWaiting');
     });

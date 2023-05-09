@@ -6,17 +6,17 @@
   </head>
   <body>
     <div class="top-row">
-      <h2>Enter Your Username</h2>
+      <h2>Enter Your Prolific ID</h2>
       <form method="post">
-        <label for="nickname">Username:</label>
+        <label for="nickname">Prolific ID:</label>
         <input type="text" id="nickname" name="nickname" required>
-    <div class="top-row">
+        <div class="top-row">
         <p id="reminder" style="font-size: small; font-style: italic;"></p>
-        <!-- <p>Press ENTER to start</p> -->
-        <!-- <div class="bottom-row">
-          <input type="submit" value="Join the Queue">
-        <div class="bottom-row"> -->
+        <button type="submit" {% if error %}disabled{% endif %}>Start</button>
       </form>
+      {% if error %}
+      <div class="error" style="color: red; font-weight: bold;">{{ error }}</div>
+      {% endif %}
       <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
       <script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
       <script type="text/javascript" charset="utf-8">
