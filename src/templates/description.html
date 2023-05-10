@@ -48,14 +48,14 @@
 </head>
 <body>
 	<h1>Welcome to the game!</h1>
-	<p>In this game, you and your partner will be playing a guessing game. You would be taking turns exchanging messages about the shapes that you will be presented with. Your goal is to figure out a way to earn the maximum amount of points by correctly guessing the objects encoded by those messages. During the game, you will be presented with images similar to the one below:</p>
-	<img src="/static/stimuli/S-l.png">
+	<p>In this game, you and your partner will be playing a guessing game. You would be taking turns exchanging messages about the shapes that you will be presented with. Your goal is to figure out a way to earn the maximum amount of points by correctly guessing the objects encoded by your opponent. During the game, you will be presented with images similar to the one below:</p>
+	<img src="/static/interface/S-l.png">
 	<p>This image consists of two elements: a star (the shape) and a box with two compartments, with the shape being placed on the right or on the left (the position). Here, your task is to choose between two messages to describe the shape that you see on your screen to your partner. You will be provided with two messages: rabu and tabudiga. You can only choose one of them to describe the shape to your partner. An example of the interface for this task is presented below:    </p>
     <img src="/static/interface/sender.png">
 	<p>To send a longer message (tabudiga), press and hold for 5 seconds. For shorter messages (rabu), press and hold for 1 second. The goal of your partner would be to guess the shape that you encoded by the message you send. In addition to the message that you sent them, they will be provided with the position of the shape that you were shown. If they guess correctly, you both get one point. If they guess incorrectly, bot of you do not gain points.</p>
 	<p>After sending the message, you and your partner will switch the roles. Now, your task is to guess the shape that your partner meant by looking at the position and the message that they choose. The interface here will look like this:</p>
     <img src="/static/interface/receiver.png">
-	<p>Here, you will be presented with the message (highlighted in purple) and the context (in this case, the red dot on the left indicates that the shape that this message corresponds to is positioned on the left). Your goal here is to choose the shape that you think this message corresponds to. In this example, the correct guess would be the star. If you guess correctly, you and your partner will both receive one point. Then, you will switch your roles again. You will be playing a total of 20 rounds.</p>
+	<p>Here, you will be presented with the message (highlighted in purple) and the context (in this case, the red dot on the left indicates that the shape that this message corresponds to is positioned on the left). Your goal here is to choose the shape that you think this message corresponds to. In this example, the correct guess would be the star. If you guess correctly, you and your partner will both receive one point. Then, you will switch your roles again. You will be playing a total of 25 rounds.</p>
 	<button id="continueBtn" style="display: none;">Continue</button>
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
     <script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
