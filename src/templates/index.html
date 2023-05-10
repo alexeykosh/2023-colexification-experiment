@@ -9,7 +9,7 @@
       <h2>Enter Your Prolific ID</h2>
       <form method="post">
         <label for="nickname">Prolific ID:</label>
-        <input type="text" id="nickname" name="nickname" required>
+        <input type="text" id="nickname" name="nickname" required maxlength="24" pattern=".{24}">
         <div class="top-row">
         <p id="reminder" style="font-size: small; font-style: italic;"></p>
         <button type="submit" {% if error %}disabled{% endif %}>Start</button>
@@ -29,7 +29,7 @@
             null;
           };
           setTimeout(function() {
-            const reminderText = "Please enter your username and press ENTER to start the game.";
+            const reminderText = "Please enter your Prolific ID and press ENTER to start the game.";
             $('#reminder').text(reminderText);
           }, 0);
       </script>

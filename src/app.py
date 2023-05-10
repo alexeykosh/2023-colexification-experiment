@@ -15,15 +15,17 @@ import os
 
 ### FLASK SETUP ###
 
+set = random.randint(0, 9)
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'fdhjdfkhv!JJJfdsjkkjnsd'
 socketio = SocketIO(app)
-app.config['STIMULI_FOLDER'] = os.path.join('static', 'stimuli')
+app.config['STIMULI_FOLDER'] = os.path.join('static', 'sets', f'set-{set}', 'stimuli')
 app.config['CONTEXT_FOLDER'] = os.path.join('static', 'context')
 
 ### GLOBAL ###
 
-NROUNDS = 25    
+NROUNDS = 10
 queue = []
 experiments = defaultdict(dict)
 experiments_queue = []
@@ -79,7 +81,7 @@ def sender():
 
 @app.route('/receiver')
 def receiver():
-    return render_template('receiver.html')
+    return render_template('receiver.html', folder = f'set-{set}')
 
 @app.route('/result')
 def result():
@@ -122,6 +124,7 @@ def joined_waiting_room():
 
 @socketio.on('timerDone')
 def timer_done():
+    socketio.emit('redirect', {'url': '/timeout'}, room=request.sid)
     socketio.emit('redirect', {'url': '/timeout'}, room=request.sid)
 
 @socketio.on('joinedStandBy')
@@ -226,7 +229,9 @@ def joined_result():
             socketio.emit('redirect', {'url': '/sender'}, room=request.sid)
     else:
         socketio.emit('redirect', {'url': '/endgame'}, room=request.sid)
-        game.save_logs()
+        receiver = experiments[experiment_id]['receiver']
+        sender = experiments[experiment_id]['sender']
+        game.save_logs(f'{receiver}-{sender}')
         pass
 
 @socketio.on('joinedEndGame')
@@ -234,6 +239,16 @@ def joined_endgame():
     experiment_id = int(request.cookies.get('experiment_id'))
     game = experiments[experiment_id]['game']
     socketio.emit('score', {'score': game.score}, room=request.sid)
+    # retreive names for both players
+    receiver = experiments[experiment_id]['receiver']
+    sender = experiments[experiment_id]['sender']
+    # retreive score
+    score = game.score
+    # retrieve experiment id
+    experiment_id = int(request.cookies.get('experiment_id'))
+    # save all of this information to logs/participants.csv
+    with open('logs/participants.csv', 'a') as f:
+        f.write(f'{experiment_id},{receiver},{sender},{score}\n')
 
 if __name__ == '__main__':
     socketio.run(app, debug=False, port=9001)

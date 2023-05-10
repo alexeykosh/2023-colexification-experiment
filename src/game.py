@@ -73,7 +73,7 @@ class Game:
             self.n_checks = 0
             return False
     
-    def save_logs(self):
+    def save_logs(self, name):
         # save logs to json file
-        with open(f'logs/logging-{datetime.now().strftime("%Y%m%d%H%M%S")}.json', 'w') as f:
+        with open(f'logs/{name}-{datetime.now().strftime("%Y%m%d%H%M%S")}.json', 'w') as f:
             json.dump(self.LOGS, f)
