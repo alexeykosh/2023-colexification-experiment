@@ -248,7 +248,7 @@ def joined_endgame():
     experiment_id = int(request.cookies.get('experiment_id'))
     # save all of this information to logs/participants.csv
     with open('logs/participants.csv', 'a') as f:
-        f.write(f'{experiment_id},{receiver},{sender},{score}\n')
+        f.write(f'{experiment_id},{receiver},{sender},{score},set-{set}\n')
 
 if __name__ == '__main__':
     socketio.run(app, debug=False, port=9001)
