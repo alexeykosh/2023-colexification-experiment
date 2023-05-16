@@ -21,13 +21,7 @@ class Game:
         self.LOGS = defaultdict(dict)
 
     def generate_sc(self):
-        '''
-        Randomly choose a stimuli context pair for the sender
-        
-        To-do:
-        - Add stimuli and context to global variables to eliminate 
-        global in the server.
-        '''
+        '''Randomly choose a stimuli context pair for the sender'''
         self.n_checks += 1
         if self.n_checks == 1:
             stimulus = np.random.choice(list(self.stimuli_context.keys()), 
@@ -47,18 +41,14 @@ class Game:
     
     def log_word(self, word):
         '''Log the word that was sent by the sender'''
-        # NB: this is moved from generate_sc to avoid adding counts
-        # when reloading page
         self.LOGS[self.current_round]['word'] = word
         self.c_word = word
 
     def check(self, stimulus_out):
         '''Check if the stimulus chosen by the receiver is correct'''
         self.n_checks += 1
-        # self.c_stimulus_out = stimulus_out
         self.LOGS[self.current_round]['stimulus_out'] = stimulus_out
         if stimulus_out == self.c_stimulus:
-            # if correct, increment score
             if self.n_checks == 2:
                 self.score += 1
             self.LOGS[self.current_round]['correct'] = True
@@ -66,7 +56,6 @@ class Game:
             self.n_checks = 0
             return True
         else:
-            # if wrong, do not increment score
             self.LOGS[self.current_round]['correct'] = False
             self.LOGS[self.current_round]['score'] = self.score
             self.n_checks = 0
