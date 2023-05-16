@@ -1,3 +1,6 @@
+
+
+
 <!DOCTYPE html>
 <html>
   <head>
@@ -7,7 +10,7 @@
   <body>
     <div class="top-row">
       <img id="image">
-      <h2>Choose one of the messages to describe the shape above to your partner:</h2>
+      <h2>Click and hold on a message to send the shape above to your partner.</h2>
     </div>
     <div class="bottom-row" id="button-container">
       <button id="button1" onmousedown="startTimer(1)" onmouseup="stopTimer(1)">rabu</button>
@@ -25,14 +28,11 @@
       const randomIndex = Math.floor(Math.random() * buttons.length);
       buttonContainer.insertBefore(buttons[randomIndex], buttons[0]);
 
-      window.history.forward();
-      function disableBack() {
-        window.history.forward();
-      }
-      setTimeout("disableBack()", 0);
-      window.onunload = function () {
-        null;
-      };
+      // Disable refresh and back navigation
+      history.pushState(null, null, location.href);
+      window.addEventListener('popstate', function () {
+        history.pushState(null, null, location.href);
+      });
       
       // If connected, send the 'joined' event
       socket.on('connect', function() {
@@ -48,11 +48,11 @@
         if (buttonId === 1) {
           timer1 = setTimeout(function() {
             socket.emit('buttonPressedSender', buttonId);
-          }, 1000); // Changed from 100 to 1000
+          }, {{ cost_short|safe }}); // Changed from 100 to 1000
         } else if (buttonId === 2) {
           timer2 = setTimeout(function() {
             socket.emit('buttonPressedSender', buttonId);
-          }, 5000); // Changed from 300 to 3000
+          }, {{ cost_long|safe }}); // Changed from 300 to 3000
         }
       }
 
@@ -77,9 +77,9 @@
       });
 
       setTimeout(function() {
-        const reminderText = "Longer messages require a 5 seconds press and hold to be sent, and shorter words require a 1 second press and hold only.";
+        const reminderText = "Longer messages require a {{ cost_long // 1000 }} seconds press and hold to be sent, and shorter words require a {{ cost_short // 1000 }} second press and hold only.";
         $('#reminder').text(reminderText);
-		  }, 0);
+      }, 0);
     </script>
   </body>
 </html>

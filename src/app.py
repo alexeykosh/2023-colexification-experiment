@@ -25,7 +25,10 @@ app.config['CONTEXT_FOLDER'] = os.path.join('static', 'context')
 
 ### GLOBAL ###
 
-NROUNDS = 25
+NROUNDS = 10
+COST_SHORT = 1
+COST_LONG = 7
+
 queue = []
 experiments = defaultdict(dict)
 experiments_queue = []
@@ -35,7 +38,7 @@ usernames = []
 
 @app.route('/')
 def description():
-    return render_template('description.html')
+    return render_template('description.html', nrounds=NROUNDS, cost_long=COST_LONG, cost_short=COST_SHORT)
 
 @app.route('/start', methods=['GET', 'POST'])
 def index():
@@ -73,11 +76,11 @@ def wait():
 
 @app.route('/stand_by')
 def hi():
-    return render_template('stand_by.html')
+    return render_template('stand_by.html', nrounds=NROUNDS)
 
 @app.route('/sender')
 def sender():
-    return render_template('sender.html')
+    return render_template('sender.html', cost_long=COST_LONG*1000, cost_short=COST_SHORT*1000)
 
 @app.route('/receiver')
 def receiver():
@@ -85,7 +88,7 @@ def receiver():
 
 @app.route('/result')
 def result():
-    return render_template('result.html')
+    return render_template('result.html', nrounds=NROUNDS)
 
 @app.route('/endgame')
 def endgame():
@@ -93,6 +96,10 @@ def endgame():
 
 @app.route('/timeout')
 def timeout():
+    # ig someone joins this page, pop them from the queue
+    user = request.cookies.get('user')
+    if user in queue:
+        queue.remove(user)
     return render_template('timeout.html')
 
 ### SOCKET.IO ###
@@ -124,7 +131,6 @@ def joined_waiting_room():
 
 @socketio.on('timerDone')
 def timer_done():
-    socketio.emit('redirect', {'url': '/timeout'}, room=request.sid)
     socketio.emit('redirect', {'url': '/timeout'}, room=request.sid)
 
 @socketio.on('joinedStandBy')
@@ -231,7 +237,7 @@ def joined_result():
         socketio.emit('redirect', {'url': '/endgame'}, room=request.sid)
         receiver = experiments[experiment_id]['receiver']
         sender = experiments[experiment_id]['sender']
-        game.save_logs(f'{receiver}-{sender}')
+        game.save_logs(f'{receiver}-{sender}-{set}-{COST_LONG}')
         pass
 
 @socketio.on('joinedEndGame')

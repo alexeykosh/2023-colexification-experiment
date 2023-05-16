@@ -6,7 +6,7 @@
 	</head>
 	<body>
 		<div class="score-round">
-			Score: <span id="score"></span> | Round: <span id="round"></span>/25
+			Score: <span id="score"></span> | Round: <span id="round"></span>/{{ nrounds }}
 		</div>
 		<div class="top-row">
 			<h2>Waiting for Player 1<span class="dots"></span></h2>
@@ -17,14 +17,12 @@
 			// Connect to the Socket.io server
 			const socket = io();
 
-			window.history.forward();
-			function disableBack() {
-				window.history.forward();
-			}
-			setTimeout("disableBack()", 0);
-			window.onunload = function () {
-				null;
-			};
+			// Disable refresh and back navigation
+			history.pushState(null, null, location.href);
+			window.addEventListener('popstate', function () {
+				history.pushState(null, null, location.href);
+			});
+
 			// if receive 'redirect' reidrect to the url
 			// emit "joinedStandBy" to the server
 			socket.on('connect', function() {

@@ -18,7 +18,6 @@ class Game:
         self.c_context = None
         self.c_word = None
         self.c_stimulus_out = None
-
         self.LOGS = defaultdict(dict)
 
     def generate_sc(self):
@@ -30,21 +29,21 @@ class Game:
         global in the server.
         '''
         self.n_checks += 1
-        stimulus = np.random.choice(list(self.stimuli_context.keys()), 
-                                    p=[self.stimuli_prob[s] for s in self.stimuli_context])
-        while stimulus == self.c_stimulus:
+        if self.n_checks == 1:
             stimulus = np.random.choice(list(self.stimuli_context.keys()), 
                                         p=[self.stimuli_prob[s] for s in self.stimuli_context])
-        context = np.random.choice(self.stimuli_context[stimulus],
-                                      p=[self.stimuli_context_prob[stimulus][c] for c in self.stimuli_context[stimulus]])
-        if self.n_checks == 1:
-            self.current_round += 1
-        self.LOGS[self.current_round]['stimulus'] = stimulus
-        self.LOGS[self.current_round]['context'] = context
-        
-        self.c_stimulus = str(stimulus)
-        self.c_context = str(context)
-        return str(stimulus), str(context)
+            context = np.random.choice(self.stimuli_context[stimulus],
+                                        p=[self.stimuli_context_prob[stimulus][c] for c in self.stimuli_context[stimulus]])
+            if self.n_checks == 1:
+                self.current_round += 1
+            self.LOGS[self.current_round]['stimulus'] = stimulus
+            self.LOGS[self.current_round]['context'] = context
+            
+            self.c_stimulus = str(stimulus)
+            self.c_context = str(context)
+            return str(stimulus), str(context)
+        else:
+            return self.c_stimulus, self.c_context
     
     def log_word(self, word):
         '''Log the word that was sent by the sender'''

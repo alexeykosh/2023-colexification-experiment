@@ -19,12 +19,39 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
     <script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript" charset="utf-8">
+      // Disable refresh and back navigation
+      history.pushState(null, null, location.href);
+      window.addEventListener('popstate', function () {
+          history.pushState(null, null, location.href);
+      });
+      // Function to shuffle an array
+      function shuffle(array) {
+          let currentIndex = array.length, temporaryValue, randomIndex;
+
+          // While there remain elements to shuffle
+          while (0 !== currentIndex) {
+
+            // Pick a remaining element
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex -= 1;
+
+            // Swap it with the current element
+            temporaryValue = array[currentIndex];
+            array[currentIndex] = array[randomIndex];
+            array[randomIndex] = temporaryValue;
+          }
+
+          return array;
+        }
+
         // Connect to the Socket.io server
         const socket = io();
 
-        const button1 = document.getElementById('button-1');
-        const button2 = document.getElementById('button-2');
-        const button3 = document.getElementById('button-3');
+        const buttons = [
+          document.getElementById('button-1'),
+          document.getElementById('button-2'),
+          document.getElementById('button-3')
+        ];
 
         // If connected, send the 'joined' event
         socket.on('connect', function() {
@@ -35,6 +62,13 @@
         function sendButtonId(id) {
           socket.emit('buttonPressedReceiver', id);
         }
+
+        // Shuffle the buttons' order on page load
+        $(document).ready(function() {
+          const shuffledButtons = shuffle(buttons);
+          const buttonContainer = document.getElementById('button-container');
+          shuffledButtons.forEach(button => buttonContainer.appendChild(button));
+        });
 
         // if receive 'redirect' redirect to the url
         socket.on('redirect', function(data) {
@@ -49,17 +83,17 @@
           document.getElementById('image').src = imgSrc;
         });
 
-        socket.on('left', () => {
-          button1.style.display = 'inline-block';
-          button2.style.display = 'inline-block';
-          button3.style.display = 'none';
-        });
+        // socket.on('left', () => {
+        //   button1.style.display = 'inline-block';
+        //   button2.style.display = 'inline-block';
+        //   button3.style.display = 'none';
+        // });
 
-        socket.on('right', () => {
-          button1.style.display = 'none';
-          button2.style.display = 'inline-block';
-          button3.style.display = 'inline-block';
-        });
+        // socket.on('right', () => {
+        //   button1.style.display = 'none';
+        //   button2.style.display = 'inline-block';
+        //   button3.style.display = 'inline-block';
+        // });
 
         setTimeout(function() {
           const reminderText = "The red dot on the figure corresponds to the position of the shape that Player 1 encoded in the message.";
