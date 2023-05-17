@@ -10,9 +10,13 @@ from collections import defaultdict
 from game import Game
 import os
 
+# to-do
+# 1. instead of using game, put the global stuff in experiments[experiment_id]
+
 ### FLASK SETUP ###
 
 set = random.randint(0, 9)
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'fdhjdfkhv!JJJfdsjkkjnsd'
@@ -22,9 +26,12 @@ app.config['CONTEXT_FOLDER'] = os.path.join('static', 'context')
 
 ### GLOBAL ###
 
-NROUNDS = 10
+NROUNDS = 5
 COST_SHORT = 1
-COST_LONG = 7
+COST_LONG = 5
+
+LINK_BONUS = "https://app.prolific.co/submissions/complete?cc=CVUISTHW"
+LINK_NO_BONUS = "https://app.prolific.co/submissions/complete?cc=CLL9A10A"
 
 queue = []
 experiments = defaultdict(dict)
@@ -93,6 +100,7 @@ def endgame():
 
 @app.route('/timeout')
 def timeout():
+    # ig someone joins this page, pop them from the queue
     user = request.cookies.get('user')
     if user in queue:
         queue.remove(user)
@@ -112,10 +120,12 @@ def joined_waiting_room():
     - How to account for randomized stimuli? One way is to have n folders with identical 
     filenames and then randomly select one of the folders.
     '''
+    # global game 
     user = request.cookies.get('user')
     experiment_id = int(request.cookies.get('experiment_id'))
     experiments[experiment_id]['game'] = Game({'T': ['r'], 'C': ['l'], 'S': ['r', 'l']}, rounds=NROUNDS)
     while experiments[experiment_id]['sender'] is None:
+        # waiting for receiver to join 
         sleep(1)
     else:
         if experiments[experiment_id]['receiver'] == user:
@@ -129,11 +139,13 @@ def timer_done():
 
 @socketio.on('joinedStandBy')
 def joined_stand_by():
+    # if the user is the receiver, save sid to dict
     user = request.cookies.get('user')
     experiment_id = int(request.cookies.get('experiment_id'))
     game = experiments[experiment_id]['game']
     score = game.score
     round_number = game.current_round
+    # emit "updateScoreRound" with score and round number
     socketio.emit('updateScoreRound', {'score': score, 'round': round_number}, room=request.sid)
     if experiments[experiment_id]['receiver'] == user:
         experiments[experiment_id]['receiver_sid'] = request.sid
@@ -143,19 +155,34 @@ def joined_stand_by():
 
 @socketio.on('joinedSender')
 def joined_sender():
+    # global context
+    # global stimulus
+
     experiment_id = int(request.cookies.get('experiment_id'))
     game = experiments[experiment_id]['game']
     stimulus, context = game.generate_sc()
+
+    print(stimulus, context)
+
     socketio.emit('stimulus', {'st': os.path.join(app.config['STIMULI_FOLDER'], 
                                                   f'{stimulus}-{context}.png')}, room=request.sid)
 
 @socketio.on('buttonPressedSender')
 def button_pressed(button_id):
+    '''
+    To-do:
+
+    - Solve the issue with the receiver being redirected using the broadcast=True.
+    '''
+    # global word 
+
     user = request.cookies.get('user')
     experiment_id = int(request.cookies.get('experiment_id'))
     game = experiments[experiment_id]['game']
+
     button_ids = {1: 'rabu', 2: 'tabudiga'}
     game.log_word(button_ids[button_id])
+    # word = button_ids[button_id]
     experiment_id = int(request.cookies.get('experiment_id'))
     if experiments[experiment_id]['sender'] == user:
         socketio.emit('redirect', {'url': '/stand_by'}, room=request.sid)
@@ -179,7 +206,8 @@ def button_pressed(button_id):
     To-do:
 
     - Remove the global variables and put them into the game class. 
-    ''' 
+    '''
+    # # global stimulus_out 
     global old_sender
     global old_receiver
 
@@ -223,12 +251,21 @@ def joined_endgame():
     experiment_id = int(request.cookies.get('experiment_id'))
     game = experiments[experiment_id]['game']
     socketio.emit('score', {'score': game.score}, room=request.sid)
+    if game.score > 0:
+        socketio.emit('prolificLink', LINK_BONUS, room=request.sid)
+    else:
+        socketio.emit('prolificLink', LINK_NO_BONUS, room=request.sid)
+    # retreive names for both players
     receiver = experiments[experiment_id]['receiver']
     sender = experiments[experiment_id]['sender']
+    # retreive score
     score = game.score
+    # retrieve experiment id
     experiment_id = int(request.cookies.get('experiment_id'))
+    # save all of this information to logs/participants.csv
     with open('logs/participants.csv', 'a') as f:
         f.write(f'{experiment_id},{receiver},{sender},{score},set-{set}\n')
+
 
 if __name__ == '__main__':
     socketio.run(app, debug=False, port=9001)

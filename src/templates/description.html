@@ -15,6 +15,7 @@
             text-align: left;
             background-color: #e6f2ff;;
         }
+
 		main {
 			display: flex;
 			flex-direction: column;
@@ -23,6 +24,7 @@
 			margin-top: 50px;
 			margin-bottom: 50px;
 		}
+
 		img {
             /* center images */
             display: block;
@@ -30,6 +32,7 @@
             margin-right: auto;
 			max-width: 100%;
 		}
+
 		button {
 			display: none;
 			margin-top: 50px;
@@ -41,8 +44,13 @@
 			border-radius: 5px;
 			cursor: pointer;
 		}
+
 		button.show {
 			display: block;
+		}
+		
+		.stimuli {
+			max-width: 35%;
 		}
 	</style>
 </head>
@@ -50,18 +58,18 @@
 	<h1>Welcome to the game!</h1>
 
 	<p>In this game, you will be paired <b>with another participant (another Prolific person)</b> and you will play a communication game together. You will take turns exchanging messages, using novel words to communicate about shapes. <b>Your goal is to figure out a way to earn the maximum amount of points by successfully encoding and decoding messages with your partner.</b> During the game, you will be presented with images similar to the one below: </p>
-	<img src="/static/interface/S-l.png">
-	<p>This image consists of two elements: a star (the shape) and a box with two compartments, with the shape being placed on the right or on the left (the position). <b>As the sender, your task is to choose between two messages to describe the shape that you see on your screen to your partner.</b> You will be provided with two messages to choose between: in this example, it is rabu and tabudiga. You can only choose one of them to describe the shape to your partner. An example of the interface for this task is presented below:</p>
+	<img src="/static/interface/S-l.png" class="stimuli">
+	<p>This image consists of two elements: a square (the shape) and a box with two compartments, with the shape being placed on the right or on the left (the position). <b>As the sender, your task is to choose between two messages to describe the shape that you see on your screen to your partner.</b> You will be provided with two messages to choose between: in this example, it is <i>rabu</i> and <i>tabudiga</i>. You can only choose one of them to describe the shape to your partner. An example of the interface for this task is presented below:</p>
 
     <img src="/static/interface/sender.png">
 
-	<p>To send a longer message (tabudiga), press and hold for {{ cost_long }} seconds. For shorter messages (rabu), press and hold for {{ cost_short }} second. </p>
+	<p>To send a longer message (<i>tabudiga</i>), press and hold for {{ cost_long }} seconds. For shorter messages (<i>rabu</i>), press and hold for {{ cost_short }} second. </p>
 
 	<p>The goal of your partner acting as <b>receiver on this trial will be to guess the shape that you encoded by the message that you sent.</b> In addition to the message that you sent them, they will be provided with the position of the shape that you were shown (the red dot). The interface for the receiver looks like this:</p>
 
     <img src="/static/interface/receiver.png">
 
-	<p>If the receiver guesses correctly, you both get one point. If they guess incorrectly, neither of you gets any points! </p>
+	<p>If the receiver guesses correctly (if he clicks on the square), you both get one point, with each point adding 5 pence to your total reward. If they guess incorrectly, neither of you gets any points! </p>
 
 	<p>After every round  you and your partner switch roles: your partner will be the sender and you will be the receiver. You will be playing a total of {{ nrounds }} rounds.</p>
 
@@ -83,7 +91,7 @@
 
 		setTimeout(function() {
 			document.getElementById("continueBtn").style.display = "block";
-		}, 1000);
+		}, 0);
 
         // if continue button is clicked, emit continue event
         document.getElementById("continueBtn").addEventListener("click", function() {
