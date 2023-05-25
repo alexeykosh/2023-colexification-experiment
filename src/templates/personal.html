@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Enter Your Details</title>
+    <link href="/static/style.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="top-row">
+      <h2>Enter Your Details</h2>
+      <form method="post">
+        <div>
+          <label for="age">Age:</label>
+          <select id="age" name="age" required>
+            <option value="" disabled selected>Select your age</option>
+            {% for i in range(18, 101) %}
+              <option value="{{ i }}">{{ i }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
+          <label for="gender">Gender:</label>
+          <select id="gender" name="gender" required>
+            <option value="" disabled selected>Select your gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div class="top-row">
+          <button type="submit" {% if error %}disabled{% endif %}>Continue</button>
+        </div>
+      </form>
+
+      {% if error %}
+      <div class="error" style="color: red; font-weight: bold;">{{ error }}</div>
+      {% endif %}
+
+      <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
+      <script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
+      <script type="text/javascript" charset="utf-8">
+          // Disable refresh and back navigation
+          history.pushState(null, null, location.href);
+          window.addEventListener('popstate', function () {
+              history.pushState(null, null, location.href);
+          });
+      </script>
+    </div>
+  </body>
+</html>

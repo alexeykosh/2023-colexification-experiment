@@ -22,14 +22,12 @@
     <script type="text/javascript" charset="utf-8">
     var socket = io();
 
-    window.history.forward();
-      function disableBack() {
-        window.history.forward();
-      }
-      setTimeout("disableBack()", 0);
-      window.onunload = function () {
-        null;
-    };
+
+    // Disable refresh and back navigation
+    history.pushState(null, null, location.href);
+    window.addEventListener('popstate', function () {
+        history.pushState(null, null, location.href);
+    });
     
     // Set the minutes for the timer
     var minutes = 5;

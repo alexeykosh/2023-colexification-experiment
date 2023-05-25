@@ -28,6 +28,12 @@ class Game:
                                         p=[self.stimuli_prob[s] for s in self.stimuli_context])
             context = np.random.choice(self.stimuli_context[stimulus],
                                         p=[self.stimuli_context_prob[stimulus][c] for c in self.stimuli_context[stimulus]])
+            # if new stimulus and context are the same as the previous round, generate new ones
+            while stimulus == self.c_stimulus and context == self.c_context:
+                stimulus = np.random.choice(list(self.stimuli_context.keys()), 
+                                            p=[self.stimuli_prob[s] for s in self.stimuli_context])
+                context = np.random.choice(self.stimuli_context[stimulus],
+                                            p=[self.stimuli_context_prob[stimulus][c] for c in self.stimuli_context[stimulus]])
             if self.n_checks == 1:
                 self.current_round += 1
             self.LOGS[self.current_round]['stimulus'] = stimulus

@@ -34,7 +34,8 @@
 
 			// Update the content on the page
 			var statusElement = document.getElementById('status');
-			if (message === 'Correct! (+5p)') {
+			if (message === 'Correct!') {
+				message += ' (+5p)'; // Add the text "(+5p)"
 				statusElement.innerHTML = message.bold().fontcolor('green').fontsize(150);
 			} else {
 				statusElement.innerHTML = message;
@@ -44,7 +45,7 @@
 			$('#round').text(data.round);
 		});
 
-    	// if receive 'redirect' reidrect to the url
+    	// if receive 'redirect' redirect to the url
         socket.on('redirect', function(data) {
           window.location.href = data.url;
         });

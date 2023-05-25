@@ -26,7 +26,7 @@ app.config['CONTEXT_FOLDER'] = os.path.join('static', 'context')
 
 ### GLOBAL ###
 
-NROUNDS = 5
+NROUNDS = 2
 COST_SHORT = 1
 COST_LONG = 5
 
@@ -38,11 +38,22 @@ experiments = defaultdict(dict)
 experiments_queue = []
 usernames = []
 
+
+### MISC ###
+
+@app.after_request
+def after_request(response):
+    response.headers['ngrok-skip-browser-warning'] = 'true'
+    return response
+
+
 ### ROUTES ###
 
 @app.route('/')
 def description():
-    return render_template('description.html', nrounds=NROUNDS, cost_long=COST_LONG, cost_short=COST_SHORT)
+    response = make_response(render_template('description.html', nrounds=NROUNDS, cost_long=COST_LONG, cost_short=COST_SHORT))
+    response.headers['ngrok-skip-browser-warning'] = 'true'
+    return response
 
 @app.route('/start', methods=['GET', 'POST'])
 def index():
@@ -97,6 +108,14 @@ def result():
 @app.route('/endgame')
 def endgame():
     return render_template('endgame.html')
+
+@app.route('/personal', methods=['GET', 'POST'])
+def personal():
+    if request.method == 'POST':
+        age = request.form['age']
+        gender = request.form['gender']
+        return redirect('/endgame')
+    return render_template('personal.html')
 
 @app.route('/timeout')
 def timeout():
@@ -240,7 +259,7 @@ def joined_result():
             experiments[experiment_id]['sender'] = old_receiver
             socketio.emit('redirect', {'url': '/sender'}, room=request.sid)
     else:
-        socketio.emit('redirect', {'url': '/endgame'}, room=request.sid)
+        socketio.emit('redirect', {'url': '/personal'}, room=request.sid)
         receiver = experiments[experiment_id]['receiver']
         sender = experiments[experiment_id]['sender']
         game.save_logs(f'{receiver}-{sender}-{set}-{COST_LONG}')
