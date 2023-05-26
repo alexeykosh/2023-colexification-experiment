@@ -10,9 +10,6 @@ from collections import defaultdict
 from game import Game
 import os
 
-# to-do
-# 1. instead of using game, put the global stuff in experiments[experiment_id]
-
 ### FLASK SETUP ###
 
 set = random.randint(0, 9)
