@@ -3,12 +3,30 @@
   <head>
     <title>Enter Your Details</title>
     <link href="/static/style.css" rel="stylesheet">
+    <style>
+      /* CSS code for the modifications */
+      .question {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .question label {
+        margin-bottom: 10px;
+      }
+
+      .question input[type="text"] {
+        width: 300px; /* Adjust the width as desired */
+        padding: 5px;
+      }
+    </style>
   </head>
   <body>
     <div class="top-row">
       <h2>Enter Your Details</h2>
       <form method="post">
-        <div>
+        <div class="question">
           <label for="age">Age:</label>
           <select id="age" name="age" required>
             <option value="" disabled selected>Select your age</option>
@@ -18,7 +36,7 @@
           </select>
         </div>
 
-        <div>
+        <div class="question">
           <label for="gender">Gender:</label>
           <select id="gender" name="gender" required>
             <option value="" disabled selected>Select your gender</option>
@@ -26,6 +44,21 @@
             <option value="Female">Female</option>
             <option value="Other">Other</option>
           </select>
+        </div>
+        
+        <div class="question">
+          <label for="tabugida">What does tabugida mean?</label>
+          <input type="text" id="tabugida" name="tabugida" required>
+        </div>
+
+        <div class="question">
+          <label for="rabu">What does rabu mean?</label>
+          <input type="text" id="rabu" name="rabu" required>
+        </div>
+
+        <div class="question">
+          <label for="native-language">Native Language:</label>
+          <input type="text" id="native-language" name="native-language" required>
         </div>
 
         <div class="top-row">

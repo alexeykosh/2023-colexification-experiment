@@ -26,7 +26,7 @@ app.config['CONTEXT_FOLDER'] = os.path.join('static', 'context')
 
 ### GLOBAL ###
 
-NROUNDS = 2
+NROUNDS = 50
 COST_SHORT = 1
 COST_LONG = 5
 
@@ -38,21 +38,11 @@ experiments = defaultdict(dict)
 experiments_queue = []
 usernames = []
 
-
-### MISC ###
-
-@app.after_request
-def after_request(response):
-    response.headers['ngrok-skip-browser-warning'] = 'true'
-    return response
-
-
 ### ROUTES ###
 
 @app.route('/')
 def description():
     response = make_response(render_template('description.html', nrounds=NROUNDS, cost_long=COST_LONG, cost_short=COST_SHORT))
-    response.headers['ngrok-skip-browser-warning'] = 'true'
     return response
 
 @app.route('/start', methods=['GET', 'POST'])
@@ -112,8 +102,15 @@ def endgame():
 @app.route('/personal', methods=['GET', 'POST'])
 def personal():
     if request.method == 'POST':
+        user = request.cookies.get('user')
         age = request.form['age']
         gender = request.form['gender']
+        tabugida = request.form['tabugida']
+        rabu = request.form['rabu']
+
+        with open('logs/personal.csv', 'a') as f:
+            f.write(f'{user},{age},{gender},{tabugida},{rabu}\n')
+
         return redirect('/endgame')
     return render_template('personal.html')
 
@@ -287,4 +284,4 @@ def joined_endgame():
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=False, port=9001)
+    socketio.run(app, debug=True, port=9001)
