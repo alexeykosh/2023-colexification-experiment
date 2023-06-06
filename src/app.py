@@ -14,7 +14,6 @@ import os
 
 set = random.randint(0, 9)
 
-
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'fdhjdfkhv!JJJfdsjkkjnsd'
 socketio = SocketIO(app)
@@ -23,14 +22,13 @@ app.config['CONTEXT_FOLDER'] = os.path.join('static', 'context')
 
 ### GLOBAL ###
 
-NROUNDS = 50
+NROUNDS = 30
 COST_SHORT = 1
 COST_LONG = 5
 
 LINK_BONUS = "https://app.prolific.co/submissions/complete?cc=CVUISTHW"
 LINK_NO_BONUS = "https://app.prolific.co/submissions/complete?cc=CLL9A10A"
 
-queue = []
 experiments = defaultdict(dict)
 experiments_queue = []
 usernames = []
@@ -50,15 +48,14 @@ def index():
             return render_template('index.html', error='You have already completed the experiment.')
         else:
             usernames.append(user_in)
-            queue.append(user_in)
-            if len(queue) % 2 == 0:
+            if len(experiments_queue) > 0:
                 experiment_id = experiments_queue.pop()
                 experiments[experiment_id]['sender'] = user_in
                 resp = make_response(redirect('/wait'))
                 resp.set_cookie('user', user_in)
                 resp.set_cookie('experiment_id', str(experiment_id))
                 return resp
-            elif len(queue) % 2 == 1:
+            elif len(experiments_queue) == 0:
                 experiment_id = random.randint(0, 1000000)
                 experiments_queue.append(experiment_id)
                 experiments[experiment_id]['receiver'] = user_in
@@ -67,8 +64,6 @@ def index():
                 resp.set_cookie('user', user_in)
                 resp.set_cookie('experiment_id', str(experiment_id))
                 return resp
-            else:
-                pass
     return render_template('index.html')
 
 @app.route('/wait')
@@ -114,8 +109,6 @@ def personal():
 @app.route('/timeout')
 def timeout():
     user = request.cookies.get('user')
-    if user in queue:
-        queue.remove(user)
     return render_template('timeout.html')
 
 ### SOCKET.IO ###
@@ -246,4 +239,4 @@ def joined_endgame():
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True, port=9001)
+    socketio.run(app, debug=True, port=9021)
