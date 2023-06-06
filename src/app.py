@@ -12,12 +12,9 @@ import os
 
 ### FLASK SETUP ###
 
-set = random.randint(0, 9)
-
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'fdhjdfkhv!JJJfdsjkkjnsd'
 socketio = SocketIO(app)
-app.config['STIMULI_FOLDER'] = os.path.join('static', 'sets', f'set-{set}', 'stimuli')
 app.config['CONTEXT_FOLDER'] = os.path.join('static', 'context')
 
 ### GLOBAL ###
@@ -37,12 +34,18 @@ usernames = []
 
 @app.route('/')
 def description():
-    response = make_response(render_template('description.html', nrounds=NROUNDS, cost_long=COST_LONG, cost_short=COST_SHORT))
+    response = make_response(render_template('description.html', 
+                                             nrounds=NROUNDS, 
+                                             cost_long=COST_LONG, 
+                                             cost_short=COST_SHORT))
     return response
 
 @app.route('/start', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
+        global set
+        set = random.randint(0, 9)
+        app.config['STIMULI_FOLDER'] = os.path.join('static', 'sets', f'set-{set}', 'stimuli')
         user_in = request.form['nickname']
         if user_in in usernames:
             return render_template('index.html', error='You have already completed the experiment.')
@@ -121,7 +124,8 @@ def ready_to_continue():
 def joined_waiting_room():
     user = request.cookies.get('user')
     experiment_id = int(request.cookies.get('experiment_id'))
-    experiments[experiment_id]['game'] = Game({'T': ['r'], 'C': ['l'], 'S': ['r', 'l']}, rounds=NROUNDS)
+    experiments[experiment_id]['game'] = Game({'T': ['r'], 'C': ['l'], 'S': ['r', 'l']}, 
+                                              rounds=NROUNDS)
     while experiments[experiment_id]['sender'] is None:
         sleep(1)
     else:
@@ -141,7 +145,8 @@ def joined_stand_by():
     game = experiments[experiment_id]['game']
     score = game.score
     round_number = game.current_round
-    socketio.emit('updateScoreRound', {'score': score, 'round': round_number}, room=request.sid)
+    socketio.emit('updateScoreRound', {'score': score, 'round': round_number}, 
+                  room=request.sid)
     if experiments[experiment_id]['receiver'] == user:
         experiments[experiment_id]['receiver_sid'] = request.sid
     elif experiments[experiment_id]['sender'] == user:
@@ -154,7 +159,8 @@ def joined_sender():
     game = experiments[experiment_id]['game']
     stimulus, context = game.generate_sc()
     socketio.emit('stimulus', {'st': os.path.join(app.config['STIMULI_FOLDER'], 
-                                                  f'{stimulus}-{context}.png')}, room=request.sid)
+                                                  f'{stimulus}-{context}.png')}, 
+                                                  room=request.sid)
 
 @socketio.on('buttonPressedSender')
 def button_pressed(button_id):
@@ -239,4 +245,4 @@ def joined_endgame():
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True, port=9021)
+    socketio.run(app, debug=False, port=9021)
