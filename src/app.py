@@ -43,7 +43,8 @@ def description():
 @app.route('/start', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        s = random.randint(0, 9)
+        s = random.randint(1, 9)
+        # s = 0
         app.config['STIMULI_FOLDER'] = os.path.join('static', 'sets', f'set-{s}', 'stimuli')
         user_in = request.form['nickname']
         if user_in in usernames:
@@ -253,4 +254,4 @@ def joined_endgame():
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=False, port=9021)
+    socketio.run(app, debug=True, port=9021)
