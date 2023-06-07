@@ -43,9 +43,8 @@ def description():
 @app.route('/start', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        global set
-        set = random.randint(0, 9)
-        app.config['STIMULI_FOLDER'] = os.path.join('static', 'sets', f'set-{set}', 'stimuli')
+        s = random.randint(0, 9)
+        app.config['STIMULI_FOLDER'] = os.path.join('static', 'sets', f'set-{s}', 'stimuli')
         user_in = request.form['nickname']
         if user_in in usernames:
             return render_template('index.html', error='You have already completed the experiment.')
@@ -54,6 +53,7 @@ def index():
             if len(experiments_queue) > 0:
                 experiment_id = experiments_queue.pop()
                 experiments[experiment_id]['sender'] = user_in
+                experiments[experiment_id]['set'] = s
                 resp = make_response(redirect('/wait'))
                 resp.set_cookie('user', user_in)
                 resp.set_cookie('experiment_id', str(experiment_id))
@@ -84,6 +84,8 @@ def sender():
 
 @app.route('/receiver')
 def receiver():
+    experiment_id = int(request.cookies.get('experiment_id'))
+    set = experiments[experiment_id]['set']
     return render_template('receiver.html', folder = f'set-{set}')
 
 @app.route('/result')
@@ -112,7 +114,7 @@ def personal():
 @app.route('/timeout')
 def timeout():
     user = request.cookies.get('user')
-    return render_template('timeout.html')
+    return render_template('timeout.html', user=user)
 
 ### SOCKET.IO ###
 
@@ -189,15 +191,15 @@ def joined_receiver():
 
 @socketio.on('buttonPressedReceiver')
 def button_pressed(button_id):
-    global old_sender
-    global old_receiver
+    # global old_sender
+    # global old_receiver
 
     button_ids = {1: 'C', 2: 'S', 3: 'T'}
     experiment_id = int(request.cookies.get('experiment_id'))
     game = experiments[experiment_id]['game']
     game.c_stimulus_out = button_ids[button_id]
-    old_sender = experiments[experiment_id]['sender']
-    old_receiver = experiments[experiment_id]['receiver']
+    # old_sender = experiments[experiment_id]['sender']
+    # old_receiver = experiments[experiment_id]['receiver']
     socketio.emit('redirect', {'url': '/result'}, room=request.sid) 
     socketio.emit('redirect', {'url': '/result'}, room=experiments[experiment_id]['sender_sid'])
 
@@ -211,6 +213,10 @@ def joined_result():
     result = game.check(stimulus_out=stimulus_out)
     score = game.score
     round_number = game.current_round
+
+    old_sender = experiments[experiment_id]['sender']
+    old_receiver = experiments[experiment_id]['receiver']
+
     if game.current_round < NROUNDS:
         socketio.emit('resultCheck', {'message': map_result[result], 'score': score, 'round': round_number}, room=request.sid)
         sleep(2)
@@ -224,6 +230,7 @@ def joined_result():
         socketio.emit('redirect', {'url': '/personal'}, room=request.sid)
         receiver = experiments[experiment_id]['receiver']
         sender = experiments[experiment_id]['sender']
+        set = experiments[experiment_id]['set']
         game.save_logs(f'{receiver}-{sender}-{set}-{COST_LONG}')
         pass
 
@@ -238,6 +245,7 @@ def joined_endgame():
         socketio.emit('prolificLink', LINK_NO_BONUS, room=request.sid)
     receiver = experiments[experiment_id]['receiver']
     sender = experiments[experiment_id]['sender']
+    set = experiments[experiment_id]['set']
     score = game.score
     experiment_id = int(request.cookies.get('experiment_id'))
     with open('logs/participants.csv', 'a') as f:
