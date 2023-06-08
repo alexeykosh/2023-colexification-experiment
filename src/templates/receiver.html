@@ -15,6 +15,14 @@
       <button id="button-2" onclick="sendButtonId(2)"><img src="static/sets/{{ folder }}/shapes/S.png" alt="Button 2"></button>
       <button id="button-3" onclick="sendButtonId(3)"><img src="static/sets/{{ folder }}/shapes/T.png" alt="Button 3"></button>
     </div>
+    <button class="hint-button" onclick="displayHint()">Hint</button>
+    <div id="hint-modal" class="hint-image-container" style="display: none;">
+      <img src="static/sets/{{ folder }}/stimuli/S-r.png" class="hint-image">
+      <img src="static/sets/{{ folder }}/stimuli/S-l.png" class="hint-image">
+      <img src="static/sets/{{ folder }}/stimuli/T-r.png" class="hint-image">
+      <img src="static/sets/{{ folder }}/stimuli/C-l.png" class="hint-image">
+      <span class="close-button" onclick="closeHintModal()">&times;</span>
+    </div>
     <p id="reminder" style="font-size: small; font-style: italic;"></p>
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
     <script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -24,6 +32,15 @@
       window.addEventListener('popstate', function () {
           history.pushState(null, null, location.href);
       });
+      function displayHint() {
+        const hintModal = document.getElementById('hint-modal');
+        hintModal.style.display = 'block';
+      }
+
+      function closeHintModal() {
+        const hintModal = document.getElementById('hint-modal');
+        hintModal.style.display = 'none';
+      }
       // Function to shuffle an array
       function shuffle(array) {
           let currentIndex = array.length, temporaryValue, randomIndex;
@@ -83,20 +100,8 @@
           document.getElementById('image').src = imgSrc;
         });
 
-        // socket.on('left', () => {
-        //   button1.style.display = 'inline-block';
-        //   button2.style.display = 'inline-block';
-        //   button3.style.display = 'none';
-        // });
-
-        // socket.on('right', () => {
-        //   button1.style.display = 'none';
-        //   button2.style.display = 'inline-block';
-        //   button3.style.display = 'inline-block';
-        // });
-
         setTimeout(function() {
-          const reminderText = "The red dot on the figure corresponds to the position of the shape that Player 1 encoded in the message.";
+          const reminderText = "The red dot on the figure corresponds to the position of the shape that Player 1 encoded in the message. Press hint to see all the possible positions for each shape.";
           $('#reminder').text(reminderText);
         }, 0);
     </script>
