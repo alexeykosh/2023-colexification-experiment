@@ -19,7 +19,7 @@ app.config['CONTEXT_FOLDER'] = os.path.join('static', 'context')
 
 ### GLOBAL ###
 
-NROUNDS = 3
+NROUNDS = 30
 COST_SHORT = 1
 COST_LONG = 5
 
@@ -53,7 +53,6 @@ def description3():
 def index():
     if request.method == 'POST':
         s = random.randint(1, 9)
-        # s = 0
         app.config['STIMULI_FOLDER'] = os.path.join('static', 'sets', f'set-{s}', 'stimuli')
         user_in = request.form['nickname']
         if user_in in usernames:
@@ -82,25 +81,34 @@ def index():
 @app.route('/wait')
 def wait():
     user = request.cookies.get('user')
-    return render_template('wait.html', user=user)
+    return render_template('wait.html', 
+                           user=user)
 
 @app.route('/stand_by')
 def hi():
-    return render_template('stand_by.html', nrounds=NROUNDS)
+    return render_template('stand_by.html',
+                           nrounds=NROUNDS)
 
 @app.route('/sender')
 def sender():
-    return render_template('sender.html', cost_long=COST_LONG*1000, cost_short=COST_SHORT*1000)
+    experiment_id = int(request.cookies.get('experiment_id'))
+    set = experiments[experiment_id]['set']
+    return render_template('sender.html', 
+                           cost_long=COST_LONG*1000, 
+                           cost_short=COST_SHORT*1000, 
+                           folder = f'set-{set}')
 
 @app.route('/receiver')
 def receiver():
     experiment_id = int(request.cookies.get('experiment_id'))
     set = experiments[experiment_id]['set']
-    return render_template('receiver.html', folder = f'set-{set}')
+    return render_template('receiver.html', 
+                           folder = f'set-{set}')
 
 @app.route('/result')
 def result():
-    return render_template('result.html', nrounds=NROUNDS)
+    return render_template('result.html', 
+                           nrounds=NROUNDS)
 
 @app.route('/endgame')
 def endgame():

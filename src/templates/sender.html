@@ -13,6 +13,14 @@
       <button id="button1" onmousedown="startTimer(1)" onmouseup="stopTimer(1)">rabu</button>
       <button id="button2" onmousedown="startTimer(2)" onmouseup="stopTimer(2)">tabudiga</button>
     </div>
+    <button class="hint-button" onclick="displayHint()">Hint</button>
+    <div id="hint-modal" class="hint-image-container" style="display: none;">
+      <img src="static/sets/{{ folder }}/stimuli/S-r.png" class="hint-image">
+      <img src="static/sets/{{ folder }}/stimuli/S-l.png" class="hint-image">
+      <img src="static/sets/{{ folder }}/stimuli/T-r.png" class="hint-image">
+      <img src="static/sets/{{ folder }}/stimuli/C-l.png" class="hint-image">
+      <span class="close-button" onclick="closeHintModal()">&times;</span>
+    </div>
     <p id="reminder" >
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
     <script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -36,6 +44,17 @@
         socket.emit('joinedSender');
       });
 
+
+      function displayHint() {
+        const hintModal = document.getElementById('hint-modal');
+        hintModal.style.display = 'block';
+      }
+
+      function closeHintModal() {
+        const hintModal = document.getElementById('hint-modal');
+        hintModal.style.display = 'none';
+      }
+      
       // Timer variables for each button
       let timer1 = null;
       let timer2 = null;
