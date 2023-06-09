@@ -52,7 +52,8 @@ def description3():
 @app.route('/start', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        s = random.randint(1, 9)
+        # s = random.randint(1, 9)
+        s = 0
         app.config['STIMULI_FOLDER'] = os.path.join('static', 'sets', f'set-{s}', 'stimuli')
         user_in = request.form['nickname']
         if user_in in usernames:
@@ -209,15 +210,10 @@ def joined_receiver():
 
 @socketio.on('buttonPressedReceiver')
 def button_pressed(button_id):
-    # global old_sender
-    # global old_receiver
-
     button_ids = {1: 'C', 2: 'S', 3: 'T'}
     experiment_id = int(request.cookies.get('experiment_id'))
     game = experiments[experiment_id]['game']
     game.c_stimulus_out = button_ids[button_id]
-    # old_sender = experiments[experiment_id]['sender']
-    # old_receiver = experiments[experiment_id]['receiver']
     socketio.emit('redirect', {'url': '/result'}, room=request.sid) 
     socketio.emit('redirect', {'url': '/result'}, room=experiments[experiment_id]['sender_sid'])
 
