@@ -19,7 +19,7 @@ app.config['CONTEXT_FOLDER'] = os.path.join('static', 'context')
 
 ### GLOBAL ###
 
-NROUNDS = 30
+NROUNDS = 3
 COST_SHORT = 1
 COST_LONG = 5
 
@@ -32,12 +32,29 @@ usernames = []
 
 ### ROUTES ###
 
+# @app.route('/')
+# def description():
+#     response = make_response(render_template('description.html', 
+#                                              nrounds=NROUNDS, 
+#                                              cost_long=COST_LONG, 
+#                                              cost_short=COST_SHORT))
+#     return response
+
 @app.route('/')
-def description():
-    response = make_response(render_template('description.html', 
-                                             nrounds=NROUNDS, 
+def description1():
+    return render_template('description1.html')
+
+@app.route('/description2')
+def description2():
+    response = make_response(render_template('description2.html', 
                                              cost_long=COST_LONG, 
                                              cost_short=COST_SHORT))
+    return response
+
+@app.route('/description3')
+def description3():
+    response = make_response(render_template('description3.html', 
+                                             nrounds=NROUNDS))
     return response
 
 @app.route('/start', methods=['GET', 'POST'])
