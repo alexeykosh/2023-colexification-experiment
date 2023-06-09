@@ -32,14 +32,6 @@ usernames = []
 
 ### ROUTES ###
 
-# @app.route('/')
-# def description():
-#     response = make_response(render_template('description.html', 
-#                                              nrounds=NROUNDS, 
-#                                              cost_long=COST_LONG, 
-#                                              cost_short=COST_SHORT))
-#     return response
-
 @app.route('/')
 def description1():
     return render_template('description1.html')
@@ -271,4 +263,4 @@ def joined_endgame():
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True, port=9021)
+    socketio.run(app, debug=False, port=9021)
