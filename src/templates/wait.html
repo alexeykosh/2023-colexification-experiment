@@ -12,9 +12,6 @@
     </style>
 </head>
 <body>
-    <!-- <audio id="notificationSound">
-        <source src="/static/notification.mp3" type="audio/mpeg">
-    </audio> -->
     <div class="top-row">
         <h2>{{user}}, you are now in the waiting room.</h2>
         <h2>Please wait for another participant to join.</h2>
@@ -65,10 +62,7 @@
         socket.emit('joinedWaiting');
     });
 
-    // if receive 'redirect', redirect to the URL and play the notification sound
     socket.on('redirect', function(data) {
-        // var audio = document.getElementById('notificationSound');
-        // audio.play();
         window.location.href = data.url;
     });
 
