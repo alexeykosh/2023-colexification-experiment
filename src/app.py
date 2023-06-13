@@ -132,6 +132,10 @@ def timeout():
     user = session['user']
     return render_template('timeout.html', user=user)
 
+@app.route('/leftgame')
+def leftgame():
+    return render_template('leftgame.html')
+
 ### SOCKET.IO ###
 
 @socketio.on('readyToContinue')
@@ -156,6 +160,17 @@ def joined_waiting_room():
 @socketio.on('timerDone')
 def timer_done():
     socketio.emit('redirect', {'url': '/timeout'}, room=request.sid)
+
+@socketio.on('timerDone2')
+def timer_done():
+    user = session['user']
+    experiment_id = session['experiment_id']
+    socketio.emit('redirect', {'url': '/timeout'}, room=request.sid)
+
+    if experiments[experiment_id]['receiver'] == user:
+        socketio.emit('redirect', {'url': '/leftgame'}, room=experiments[experiment_id]['sender_sid'])
+    else:
+        socketio.emit('redirect', {'url': '/leftgame'}, room=experiments[experiment_id]['receiver_sid'])
 
 @socketio.on('joinedStandBy')
 def joined_stand_by():
