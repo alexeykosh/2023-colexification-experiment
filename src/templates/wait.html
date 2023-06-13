@@ -71,6 +71,11 @@
         // audio.play();
         window.location.href = data.url;
     });
+
+    // Emit event when the user closes the page or refreshes
+    window.addEventListener('beforeunload', function(event) {
+        socket.emit('userClosed');
+    });
     </script>
 </body>
 </html>

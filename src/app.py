@@ -63,9 +63,6 @@ def index():
                 experiment_id = experiments_queue.pop()
                 experiments[experiment_id]['sender'] = user_in
                 experiments[experiment_id]['set'] = s
-                # resp = make_response(redirect('/wait'))
-                # resp.set_cookie('user', user_in)
-                # resp.set_cookie('experiment_id', str(experiment_id))
                 session['user'] = user_in
                 session['experiment_id'] = experiment_id
                 return make_response(redirect('/wait'))
@@ -74,9 +71,6 @@ def index():
                 experiments_queue.append(experiment_id)
                 experiments[experiment_id]['receiver'] = user_in
                 experiments[experiment_id]['sender'] = None
-                # resp = make_response(redirect('/wait'))
-                # resp.set_cookie('user', user_in)
-                # resp.set_cookie('experiment_id', str(experiment_id))
                 session['user'] = user_in
                 session['experiment_id'] = experiment_id
                 return make_response(redirect('/wait'))
@@ -267,7 +261,6 @@ def joined_endgame():
     score = game.score
     with open('logs/participants.csv', 'a') as f:
         f.write(f'{experiment_id},{receiver},{sender},{score},set-{set}\n')
-
 
 if __name__ == '__main__':
     socketio.run(app, debug=False, port=9021)

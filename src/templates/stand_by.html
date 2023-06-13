@@ -23,7 +23,7 @@
 				history.pushState(null, null, location.href);
 			});
 
-			// if receive 'redirect' reidrect to the url
+			// if receive 'redirect' redirect to the URL
 			// emit "joinedStandBy" to the server
 			socket.on('connect', function() {
 				socket.emit('joinedStandBy');
@@ -38,6 +38,11 @@
 				$('#score').text(data.score);
 				$('#round').text(data.round);
 			});
+
+			// Emit "partnerLeft" after 5 minutes
+			setTimeout(function() {
+				socket.emit('timerDone');
+			}, 5 * 60 * 1000); // 2.5 minutes in milliseconds
 		</script>
 	</body>
 </html>
