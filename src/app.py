@@ -163,16 +163,16 @@ def timer_done():
 
 @socketio.on('timerDone2')
 def timer_done():
-    user = session['user']
-    experiment_id = session['experiment_id']
+    # user = session['user']
+    # experiment_id = session['experiment_id']
 
-    # get sid of other player
-    if experiments[experiment_id]['receiver'] == user:
-        other_sid = experiments[experiment_id]['sender_sid']
-    elif experiments[experiment_id]['sender'] == user:
-        other_sid = experiments[experiment_id]['receiver_sid']
+    # # get sid of other player
+    # if experiments[experiment_id]['receiver'] == user:
+    #     other_sid = experiments[experiment_id]['sender_sid']
+    # elif experiments[experiment_id]['sender'] == user:
+    #     other_sid = experiments[experiment_id]['receiver_sid']
 
-    socketio.emit('redirect', {'url': '/timeout'}, room=other_sid)
+    # socketio.emit('redirect', {'url': '/timeout'}, room=other_sid)
     socketio.emit('redirect', {'url': '/timeout'}, room=request.sid)
 
 @socketio.on('joinedStandBy')
