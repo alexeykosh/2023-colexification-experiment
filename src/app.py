@@ -163,6 +163,9 @@ def timer_done():
 
 @socketio.on('timerDone2')
 def timer_done():
+    '''
+    To-do: redirect the user that has left just in case
+    '''
     # user = session['user']
     # experiment_id = session['experiment_id']
 
