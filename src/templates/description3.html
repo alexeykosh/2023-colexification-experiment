@@ -54,13 +54,18 @@
 	</style>
 </head>
 <body>
-	<p>The goal of your partner wnen acting as a <b>receiver will be to guess the shape that you encoded by the message that you sent.</b> In addition to the message that you sent them, they will be provided with <b>the position of the shape that you were shown (the red dot indicating that the shape that you sent is on the left)</b>. The interface for the receiver looks like this:</p>
+	<p>Welcome to the game! You'll be paired with another participant to play a communication game. Your goal is to earn maximum points by exchanging messages about shapes. The game involves images like this:</p>
 
-    <img src="/static/interface/receiver.png" class="stimuli">
+	<!-- <img src="[image]" alt="Shapes"> -->
+	<img src="/static/interface/example_stimuli.png" class="stimuli">
 
-	<p>The receiver can use the "Hint" button to look at all possible shape-position combinations to make guessing easier. <b>If the receiver guesses correctly (if they click on the triangle), you both get one point, with each point adding 5 pence to your total reward. If they guess incorrectly, neither of you gets any points!</b></p>
+	<p>The images show a shape (triangle, hexagon,  or star) in a box with two compartments, either on the left or right.</p>
 
-	<p>After every round  you and your partner switch roles: your partner will be the sender and you will be the receiver. You will be playing a total of {{ nrounds }} rounds.</p>
+	<p>As the sender, your task is to describe the shape to your partner using two messages to choose from, like "rabu" and "tabudiga." You can send longer messages by pressing and holding for {{ cost_long }} seconds or shorter messages by pressing and holding for {{ cost_short }} second. If you need assistance, both senders and receivers can use the "Hint" button, which displays all possible shapes and their positions, to make the game easier.</p>
+
+	<p>The receiver's task is to guess the shape you encoded based on the message you sent. They'll also see the position of the shape (indicated by a red dot). They can use the "Hint" button as well to see all possible shapes and their positions to help with their guess. Guessing correctly earns both of you one point, adding 10 pence to your reward. Incorrect guesses yield no points.</p>
+
+	<p>After each round, you'll switch roles. There will be a total of {{ nrounds }} rounds in the game. Good luck!</p>
 
 	<button id="continueBtn">Begin</button>
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>

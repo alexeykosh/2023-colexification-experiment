@@ -22,7 +22,7 @@ app.config['CONTEXT_FOLDER'] = os.path.join('static', 'context')
 
 NROUNDS = 30
 COST_SHORT = 1
-COST_LONG = 5
+COST_LONG = 3
 
 LINK_BONUS = "https://app.prolific.co/submissions/complete?cc=CVUISTHW"
 LINK_NO_BONUS = "https://app.prolific.co/submissions/complete?cc=CLL9A10A"
@@ -33,20 +33,20 @@ usernames = []
 
 ### ROUTES ###
 
+# @app.route('/')
+# def description1():
+#     return render_template('description1.html')
+
+# @app.route('/description2')
+# def description2():
+#     response = make_response(render_template('description2.html'))
+#     return response
+
 @app.route('/')
-def description1():
-    return render_template('description1.html')
-
-@app.route('/description2')
-def description2():
-    response = make_response(render_template('description2.html', 
-                                             cost_long=COST_LONG, 
-                                             cost_short=COST_SHORT))
-    return response
-
-@app.route('/description3')
 def description3():
     response = make_response(render_template('description3.html', 
+                                             cost_long=COST_LONG, 
+                                             cost_short=COST_SHORT, 
                                              nrounds=NROUNDS))
     return response
 
@@ -164,7 +164,7 @@ def timer_done():
 @socketio.on('timerDone2')
 def timer_done():
     '''
-    To-do: redirect the user that has left just in case
+    To-do: redirect the user that has left
     '''
     # user = session['user']
     # experiment_id = session['experiment_id']
