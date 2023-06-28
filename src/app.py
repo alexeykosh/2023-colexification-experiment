@@ -199,6 +199,7 @@ def joined_sender():
     game = experiments[experiment_id]['game']
     set = experiments[experiment_id]['set']
     stimulus, context = game.generate_sc()
+    print(stimulus, context)
     socketio.emit('stimulus', {'st': f'static/sets/set-{set}/stimuli/{stimulus}-{context}.png'}, 
                                                   room=request.sid)
 
@@ -284,4 +285,4 @@ def joined_endgame():
         f.write(f'{experiment_id},{receiver},{sender},{score},set-{set}\n')
 
 if __name__ == '__main__':
-    socketio.run(app, debug=False, port=9021)
+    socketio.run(app, debug=True, port=9021)
