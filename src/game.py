@@ -6,10 +6,11 @@ from datetime import datetime
 class Game:
     def __init__(self, stimuli_context, rounds=100):
         self.stimuli_context = stimuli_context
-        # self.stimuli_prob = {s: 1/len(stimuli_context) for s in stimuli_context}
-        # self.stimuli_context_prob = {s: {c: 1/len(stimuli_context[s]) for c in stimuli_context[s]} for s in stimuli_context}
         ind = int(rounds / 3)
-        self.stimuli_arr = self.shuffle_stimuli(['T-r'] * ind + ['C-l'] * ind + ['S-r'] * int(ind/2) + ['S-l'] * int(ind/2))
+        self.stimuli_arr = self.shuffle_stimuli(['T-r'] * ind + 
+                                                ['C-l'] * ind + 
+                                                ['S-r'] * int(ind/2) + 
+                                                ['S-l'] * int(ind/2))
 
         self.rounds = rounds
         self.current_round = 0
@@ -21,33 +22,6 @@ class Game:
         self.c_word = None
         self.c_stimulus_out = None
         self.LOGS = defaultdict(dict)
-
-
-
-    # def generate_sc(self):
-    #     '''Randomly choose a stimuli context pair for the sender'''
-    #     self.n_checks += 1
-    #     if self.n_checks == 1:
-    #         stimulus = np.random.choice(list(self.stimuli_context.keys()), 
-    #                                     p=[self.stimuli_prob[s] for s in self.stimuli_context])
-    #         context = np.random.choice(self.stimuli_context[stimulus],
-    #                                     p=[self.stimuli_context_prob[stimulus][c] for c in self.stimuli_context[stimulus]])
-    #         # if new stimulus and context are the same as the previous round, generate new ones
-    #         while stimulus == self.c_stimulus and context == self.c_context:
-    #             stimulus = np.random.choice(list(self.stimuli_context.keys()), 
-    #                                         p=[self.stimuli_prob[s] for s in self.stimuli_context])
-    #             context = np.random.choice(self.stimuli_context[stimulus],
-    #                                         p=[self.stimuli_context_prob[stimulus][c] for c in self.stimuli_context[stimulus]])
-    #         if self.n_checks == 1:
-    #             self.current_round += 1
-    #         self.LOGS[self.current_round]['stimulus'] = stimulus
-    #         self.LOGS[self.current_round]['context'] = context
-            
-    #         self.c_stimulus = str(stimulus)
-    #         self.c_context = str(context)
-    #         return str(stimulus), str(context)
-    #     else:
-    #         return self.c_stimulus, self.c_context
 
     @staticmethod
     def shuffle_stimuli(stimuli_arr):

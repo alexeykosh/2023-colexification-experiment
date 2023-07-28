@@ -1,14 +1,25 @@
 /* set the body color to light blue */
-body {
-    background-color: #e6f2ff;
-    /* position everything in the center of the page vertically and horizontally */
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    font-family: 'Lexend Deca', sans-serif; 
-    color: #2E475D;    
-    transform: translate(-50%, -50%);
-}
+  body {
+      /* background-color: #e6f2ff; */
+      /* position everything in the center of the page vertically and horizontally */
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      font-family: 'Lexend Deca', sans-serif; 
+      align-items: center;
+      text-align: center;
+      /* color: #2E475D;     */
+      transform: translate(-50%, -50%);
+  }
+
+  main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 50%;
+    margin-top: 50px;
+    margin-bottom: 50px;
+  }
 
 .top-row {
     display: flex;
@@ -19,7 +30,7 @@ body {
 }
 
 .score-round {
-  background-color: white;
+  background-color: #90909e;
   padding: 10px 20px;
   font-weight: bold;
   font-size: 20px;
@@ -60,8 +71,8 @@ button:active {
 /* make all images to be the same size while keeping proportions */
 img {
     display: block;
-    max-width:200px;
-    max-height:200px;
+    max-width:100px;
+    max-height:100px;
     width: auto;
     height: auto;
     /* position them in the center */
@@ -88,8 +99,7 @@ img {
     transform: translateX(-50%);
     padding: 10px;
     background-color: #ff0022;
-    color: #000;
-    border: 1px solid #000;
+    color: white;
     cursor: pointer;
   }
   
@@ -114,8 +124,8 @@ img {
   }
   
   .hint-image {
-    max-width: 150px; /* Adjust the max-width to make the images smaller */
-    max-height: 150px; /* Adjust the max-height to make the images smaller */
+    max-width: 100px; /* Adjust the max-width to make the images smaller */
+    max-height: 100px; /* Adjust the max-height to make the images smaller */
     margin: 10px;
   }
   .close-button {

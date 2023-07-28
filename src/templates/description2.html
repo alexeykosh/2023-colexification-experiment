@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Guessing Game</title>
+    <style>
+		body {
+            display: flex;
+			flex-direction: column;
+			align-items: center;
+            margin: auto;
+            width: 640px; 
+            padding: 50px;
+            font-family: 'Lexend Deca', sans-serif; 
+            color: #2E475D;    
+            text-align: left;
+            /* background-color: #e6f2ff; */
+        }
+
+		main {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			max-width: 50%;
+			margin-top: 50px;
+			margin-bottom: 50px;
+		}
+
+		button {
+			margin-top: 50px;
+			font-size: 20px;
+			padding: 10px 20px;
+			background-color: #68697b;
+			color: white;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+		}
+
+		button.show {
+			display: block;
+		}
+		
+		.stimuli {
+			max-width: 50%;
+		}
+	</style>
+</head>
+<body>
+	<h1>Instructions</h1>
+
+	<p>
+    To improve your score, you can use the hint button durring the game to get all of the shape-color combinations:
+  </p>
+
+	<!-- <img src="[image]" alt="Shapes"> -->
+	<!-- <img src="/static/interface/example_stimuli.png" class="stimuli"> -->
+  <!-- two images side by side -->
+  <img src="/static/interface/hint1.png" class="stimuli" style="float:left">
+  <img src="/static/interface/hint2.png" class="stimuli" style="float:right">
+
+	<button id="continueBtn">Next</button>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
+  <script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+      const socket = io();
+
+      // Disable refresh and back navigation
+      history.pushState(null, null, location.href);
+      window.addEventListener('popstate', function () {
+        history.pushState(null, null, location.href);
+      });
+
+      // if continue button is clicked, emit continue event
+      document.getElementById("continueBtn").addEventListener("click", function() {
+          socket.emit("readyToContinue");
+      });
+
+      socket.on('redirect', function(data) {
+          window.location.href = data.url;
+      });
+	</script>
+</body>
+</html>

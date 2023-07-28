@@ -13,7 +13,7 @@
             font-family: 'Lexend Deca', sans-serif; 
             color: #2E475D;    
             text-align: left;
-            background-color: #e6f2ff;;
+            /* background-color: #e6f2ff; */
         }
 
 		main {
@@ -61,15 +61,15 @@
 	<!-- <img src="[image]" alt="Shapes"> -->
 	<img src="/static/interface/example_stimuli.png" class="stimuli">
 
-	<p>The images show a shape (triangle, hexagon,  or star) in a box with two compartments, either in the left or the right compartment.</p>
+	<p>The images show a shape (pentagon, square, or circle) colored either in green or in purple.</p>
 
-	<p></b>As the sender, your task is to describe the shape to your partner using two messages to choose from, like "rabu" and "tabudiga."</b> You can send longer messages by pressing and holding for {{ cost_long }} seconds or shorter messages by pressing and holding for {{ cost_short }} second. <b>If you need assistance, both senders and receivers can use the "Hint" button, which displays all possible shapes and their positions, to make the game easier.</b></p>
+	<p></b>As the sender, your task is to describe the shape to your partner using two messages to choose from, like "tabudiga" and "rabu."</b> You can send longer messages by pressing and holding for {{ cost_long }} seconds or shorter messages by pressing and holding for {{ cost_short }} second. <b>If you need assistance, both senders and receivers can use the "Hint" button, which displays all possible shape-colors combinations (like on the image above), to make the game easier.</b></p>
 
-	<p>The receiver's task is to guess the shape you encoded based on the message you sent.  <b>They'll also see the position of the shape (left or right, indicated by a red dot). They can use the "Hint" button as well to see all possible shapes and their positions to help with their guess. Guessing correctly earns both of you one point, adding 10 pence to your reward. Incorrect guesses yield no points.</b></p>
+	<p>The receiver's task is to guess the shape you encoded based on the message you sent. <b>They'll see the color of the shape, as well as the message that you sent. They can use the "Hint" button as well to see all combinations of shapes and colors. Guessing correctly earns both of you one point, adding 10 pence to your reward. Incorrect guesses yield no points.</b></p>
 
 	<p>After each round, you'll switch roles. There will be a total of {{ nrounds }} rounds in the game. Good luck!</p>
 
-	<button id="continueBtn">Begin</button>
+	<button id="continueBtn">Next</button>
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
     <script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
@@ -81,14 +81,14 @@
 			history.pushState(null, null, location.href);
 		});
 
-        // if continue button is clicked, emit continue event
-        document.getElementById("continueBtn").addEventListener("click", function() {
-            socket.emit("readyToContinue");
-        });
+        // socket.on('redirect', function(data) {
+        //     window.location.href = '/description2';
+        // });
 
-        socket.on('redirect', function(data) {
-            window.location.href = data.url;
-        });
+		// when button is clicked, redirect to description2
+		$('#continueBtn').click(function() {
+			window.location.href = '/description2';
+		});
 	</script>
 </body>
 </html>

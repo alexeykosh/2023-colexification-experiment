@@ -7,8 +7,7 @@
   <body>
     <div class="top-row">
       <h2 id="message"></h2>
-      <img id="image">
-      <h2> Which shape corresponds to that word? </h2>
+      <h2> Which shape corresponds to that message? </h2>
     </div>
     <div class="bottom-row" id="button-container">
       <button id="button-1" onclick="sendButtonId(1)"><img src="static/sets/{{ folder }}/shapes/C.png" alt="Button 1"></button>
@@ -96,14 +95,14 @@
 
         socket.on('contextWord', (data) => {
           const word = data.word;
-          const imgSrc = data.img;
-          const message = `You received the message <span style="color: #ff1493">${word}</span> and the shape is in this position:`;
+          const color = data.color;
+          const hex = data.hex;
+          const message = `You received the message <i>${word}</i> and the shape is <span style="color: ${hex}">${color}</span>:`;
           document.getElementById('message').innerHTML = message;
-          document.getElementById('image').src = imgSrc;
         });
 
         setTimeout(function() {
-          const reminderText = "The red dot on the figure corresponds to the position of the shape that Player 1 encoded in the message. Press hint to see all the possible positions for each shape.";
+          const reminderText = "The red dot on the figure corresponds to the position of the shape that Player 1 encoded in the message. Press hint to see all the possible color-shape combinations.";
           $('#reminder').text(reminderText);
         }, 0);
     </script>

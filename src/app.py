@@ -10,19 +10,22 @@ from time import sleep
 from collections import defaultdict
 from game import Game
 import os
+import pickle
 
 ### FLASK SETUP ###
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'fdhjdfkhv!JJJfdsjkkjnsd'
-socketio = SocketIO(app)
+socketio = SocketIO(app, ping_timeout=5000, ping_interval=10000)
 app.config['CONTEXT_FOLDER'] = os.path.join('static', 'context')
+
+
 
 ### GLOBAL ###
 
 NROUNDS = 30
 COST_SHORT = 1
-COST_LONG = 3
+COST_LONG = 4
 
 LINK_BONUS = "https://app.prolific.co/submissions/complete?cc=CVUISTHW"
 LINK_NO_BONUS = "https://app.prolific.co/submissions/complete?cc=CLL9A10A"
@@ -30,6 +33,14 @@ LINK_NO_BONUS = "https://app.prolific.co/submissions/complete?cc=CLL9A10A"
 experiments = defaultdict(dict)
 experiments_queue = []
 usernames = []
+
+# hex for red green blue yellow purple as a dictionary
+rgb_hex = {'red': '#ff0000', 
+           'green': '#0b7821', 
+           'blue': '#0000ff', 
+           'yellow': '#ffff00',
+           'purple': '#ff00ff'}
+
 
 ### ROUTES ###
 
@@ -43,12 +54,16 @@ usernames = []
 #     return response
 
 @app.route('/')
-def description3():
-    response = make_response(render_template('description3.html', 
+def description1():
+    response = make_response(render_template('description1.html', 
                                              cost_long=COST_LONG, 
                                              cost_short=COST_SHORT, 
                                              nrounds=NROUNDS))
     return response
+
+@app.route('/description2')
+def description2():
+    return render_template('description2.html')
 
 @app.route('/start', methods=['GET', 'POST'])
 def index():
@@ -146,7 +161,6 @@ def ready_to_continue():
 def joined_waiting_room():
     user = session['user']
     experiment_id = session['experiment_id']
-    print(experiment_id)
     experiments[experiment_id]['game'] = Game({'T': ['r'], 'C': ['l'], 'S': ['r', 'l']}, 
                                               rounds=NROUNDS)
     while experiments[experiment_id]['sender'] is None:
@@ -199,7 +213,6 @@ def joined_sender():
     game = experiments[experiment_id]['game']
     set = experiments[experiment_id]['set']
     stimulus, context = game.generate_sc()
-    print(stimulus, context)
     socketio.emit('stimulus', {'st': f'static/sets/set-{set}/stimuli/{stimulus}-{context}.png'}, 
                                                   room=request.sid)
 
@@ -220,12 +233,15 @@ def joined_receiver():
     experiment_id = session['experiment_id']
     game = experiments[experiment_id]['game']
     context = game.c_context
-    if context == 'r':
-        socketio.emit('right', room=request.sid)
-    elif context == 'l':
-        socketio.emit('left', room=request.sid)
-    socketio.emit('contextWord', {'img': os.path.join(app.config['CONTEXT_FOLDER'], f'{context}.png'), 
-                                  'word': game.c_word}, room=request.sid)
+
+    set = experiments[experiment_id]['set']
+    # open file filenames.pickle
+    with open(f'static/sets/set-{set}/filenames.pkl', 'rb') as f:
+        filenames = pickle.load(f)
+
+    socketio.emit('contextWord', {'color': filenames[context], 
+                                  'word': game.c_word,
+                                  'hex': rgb_hex[filenames[context]]}, room=request.sid)
 
 @socketio.on('buttonPressedReceiver')
 def button_pressed(button_id):
@@ -285,4 +301,4 @@ def joined_endgame():
         f.write(f'{experiment_id},{receiver},{sender},{score},set-{set}\n')
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True, port=9021)
+    socketio.run(app, debug=False, port=9021)
