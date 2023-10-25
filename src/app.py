@@ -7,6 +7,7 @@ from flask import (Flask,
 from flask_socketio import SocketIO
 import random
 from time import sleep
+import datetime
 from collections import defaultdict
 from game import Game
 import os
@@ -27,31 +28,23 @@ NROUNDS = 30
 COST_SHORT = 1
 COST_LONG = 4
 
-LINK_BONUS = "https://app.prolific.co/submissions/complete?cc=CVUISTHW"
-LINK_NO_BONUS = "https://app.prolific.co/submissions/complete?cc=CLL9A10A"
+LINK_BONUS = "https://app.prolific.com/submissions/complete?cc=CH7BLM9Y"
+LINK_NO_BONUS = "https://app.prolific.com/submissions/complete?cc=C1FP9TAU"
 
 experiments = defaultdict(dict)
 experiments_queue = []
 usernames = []
 
-# hex for red green blue yellow purple as a dictionary
 rgb_hex = {'red': '#ff0000', 
            'green': '#0b7821', 
            'blue': '#0000ff', 
            'yellow': '#ffff00',
            'purple': '#ff00ff'}
 
+short_words = ['lyun', 'folu', 'soin', 'nias', 'lyfy', 'pyar']
+long_words = ['ernogare', 'aldoenpo', 'inumtasa', 'uninrere', 'calymaic', 'sosulyra']
 
 ### ROUTES ###
-
-# @app.route('/')
-# def description1():
-#     return render_template('description1.html')
-
-# @app.route('/description2')
-# def description2():
-#     response = make_response(render_template('description2.html'))
-#     return response
 
 @app.route('/')
 def description1():
@@ -68,7 +61,10 @@ def description2():
 @app.route('/start', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
+
         s = random.randint(1, 9)
+        short_word = random.choice(short_words)
+        long_word = random.choice(long_words)
         user_in = request.form['nickname']
         if user_in in usernames:
             return render_template('index.html', error='You have already completed the experiment.')
@@ -78,6 +74,8 @@ def index():
                 experiment_id = experiments_queue.pop()
                 experiments[experiment_id]['sender'] = user_in
                 experiments[experiment_id]['set'] = s
+                experiments[experiment_id]['short_word'] = short_word
+                experiments[experiment_id]['long_word'] = long_word
                 session['user'] = user_in
                 session['experiment_id'] = experiment_id
                 return make_response(redirect('/wait'))
@@ -98,7 +96,7 @@ def wait():
                            user=user)
 
 @app.route('/stand_by')
-def hi():
+def stand_by():
     return render_template('stand_by.html',
                            nrounds=NROUNDS)
 
@@ -106,10 +104,20 @@ def hi():
 def sender():
     experiment_id = session['experiment_id']
     set = experiments[experiment_id]['set']
+    game = experiments[experiment_id]['game']
+
+    short_word = experiments[experiment_id]['short_word']
+    long_word = experiments[experiment_id]['long_word']
+
+    if game.current_round == 0:
+        session['start_time'] = datetime.datetime.now()
+    print(session)
     return render_template('sender.html', 
                            cost_long=COST_LONG*1000, 
                            cost_short=COST_SHORT*1000, 
-                           folder = f'set-{set}')
+                           folder = f'set-{set}',
+                           short = short_word,
+                           long = long_word)
 
 @app.route('/receiver')
 def receiver():
@@ -129,6 +137,10 @@ def endgame():
 
 @app.route('/personal', methods=['GET', 'POST'])
 def personal():
+    # get short and long words from experiments
+    experiment_id = session['experiment_id']
+    short_word = experiments[experiment_id]['short_word']
+    long_word = experiments[experiment_id]['long_word']
     if request.method == 'POST':
         user = session['user']
         age = request.form['age']
@@ -140,7 +152,7 @@ def personal():
             f.write(f'{user},{age},{gender},{tabugida},{rabu}\n')
 
         return redirect('/endgame')
-    return render_template('personal.html')
+    return render_template('personal.html', short = short_word, long = long_word)
 
 @app.route('/timeout')
 def timeout():
@@ -165,11 +177,10 @@ def joined_waiting_room():
                                               rounds=NROUNDS)
     while experiments[experiment_id]['sender'] is None:
         sleep(1)
-    else:
-        if experiments[experiment_id]['receiver'] == user:
-            socketio.emit('redirect', {'url': '/stand_by'}, room=request.sid)
-        elif experiments[experiment_id]['sender'] == user:
-            socketio.emit('redirect', {'url': '/sender'}, room=request.sid)
+    if experiments[experiment_id]['receiver'] == user:
+        socketio.emit('redirect', {'url': '/stand_by'}, room=request.sid)
+    elif experiments[experiment_id]['sender'] == user:
+        socketio.emit('redirect', {'url': '/sender'}, room=request.sid)
 
 @socketio.on('timerDone')
 def timer_done():
@@ -213,6 +224,7 @@ def joined_sender():
     game = experiments[experiment_id]['game']
     set = experiments[experiment_id]['set']
     stimulus, context = game.generate_sc()
+    print(session)
     socketio.emit('stimulus', {'st': f'static/sets/set-{set}/stimuli/{stimulus}-{context}.png'}, 
                                                   room=request.sid)
 
@@ -222,7 +234,7 @@ def button_pressed(button_id):
     experiment_id = session['experiment_id']
     game = experiments[experiment_id]['game']
 
-    button_ids = {1: 'rabu', 2: 'tabudiga'}
+    button_ids = {1: experiments[experiment_id]['short_word'], 2: experiments[experiment_id]['long_word']}
     game.log_word(button_ids[button_id])
     if experiments[experiment_id]['sender'] == user:
         socketio.emit('redirect', {'url': '/stand_by'}, room=request.sid)
