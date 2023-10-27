@@ -24,7 +24,7 @@ app.config['CONTEXT_FOLDER'] = os.path.join('static', 'context')
 
 ### GLOBAL ###
 
-NROUNDS = 30
+NROUNDS = 42
 COST_SHORT = 1
 COST_LONG = 4
 
@@ -41,8 +41,8 @@ rgb_hex = {'red': '#ff0000',
            'yellow': '#ffff00',
            'purple': '#ff00ff'}
 
-short_words = ['lyun', 'folu', 'soin', 'nias', 'lyfy', 'pyar']
-long_words = ['ernogare', 'aldoenpo', 'inumtasa', 'uninrere', 'calymaic', 'sosulyra']
+short_words = ['nais', 'asth', 'ryth', 'thim', 'crea']
+long_words = ['elpazpil', 'slekatur', 'uditslev', 'epomgued', 'bewentur']
 
 ### ROUTES ###
 
