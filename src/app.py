@@ -21,15 +21,14 @@ socketio = SocketIO(app, ping_timeout=5000, ping_interval=10000)
 app.config['CONTEXT_FOLDER'] = os.path.join('static', 'context')
 
 
-
 ### GLOBAL ###
 
 NROUNDS = 42
 COST_SHORT = 1
 COST_LONG = 4
 
-LINK_BONUS = "https://app.prolific.com/submissions/complete?cc=CH7BLM9Y"
-LINK_NO_BONUS = "https://app.prolific.com/submissions/complete?cc=C1FP9TAU"
+LINK_BONUS = "https://app.prolific.com/submissions/complete?cc=C1IR1LMH"
+LINK_NO_BONUS = "https://app.prolific.com/submissions/complete?cc=CMP1BDDS"
 
 experiments = defaultdict(dict)
 experiments_queue = []
@@ -41,8 +40,10 @@ rgb_hex = {'red': '#ff0000',
            'yellow': '#ffff00',
            'purple': '#ff00ff'}
 
-short_words = ['nais', 'asth', 'ryth', 'thim', 'crea']
-long_words = ['elpazpil', 'slekatur', 'uditslev', 'epomgued', 'bewentur']
+short_words = ['cauv', 'urbe', 'fusk', 'tarb', 'demb', 
+               'gyte', 'kilv', 'yirv', 'weff', 'ciff']
+long_words = ['ghrertch', 'chawntch', 'wroarnte', 'shoughse', 'thwisque', 
+              'strourgn', 'sprource', 'ghleente', 'phroughm', 'ghleuche']
 
 ### ROUTES ###
 
@@ -58,13 +59,17 @@ def description1():
 def description2():
     return render_template('description2.html')
 
+@app.route('/description3')
+def description3():
+    return render_template('description3.html')
+
 @app.route('/start', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-
         s = random.randint(1, 9)
-        short_word = random.choice(short_words)
-        long_word = random.choice(long_words)
+        w_i = random.randint(0, 9)
+        short_word = short_words[w_i]
+        long_word = long_words[w_i]
         user_in = request.form['nickname']
         if user_in in usernames:
             return render_template('index.html', error='You have already completed the experiment.')
@@ -76,6 +81,7 @@ def index():
                 experiments[experiment_id]['set'] = s
                 experiments[experiment_id]['short_word'] = short_word
                 experiments[experiment_id]['long_word'] = long_word
+                experiments[experiment_id]['left'] = False
                 session['user'] = user_in
                 session['experiment_id'] = experiment_id
                 return make_response(redirect('/wait'))
@@ -111,7 +117,6 @@ def sender():
 
     if game.current_round == 0:
         session['start_time'] = datetime.datetime.now()
-    print(session)
     return render_template('sender.html', 
                            cost_long=COST_LONG*1000, 
                            cost_short=COST_SHORT*1000, 
@@ -184,24 +189,30 @@ def joined_waiting_room():
 
 @socketio.on('timerDone')
 def timer_done():
+    '''If no one joins the user after 15 minutes'''
     socketio.emit('redirect', {'url': '/timeout'}, room=request.sid)
 
 @socketio.on('timerDone2')
-def timer_done():
-    '''
-    To-do: redirect the user that has left
-    '''
-    # user = session['user']
-    # experiment_id = session['experiment_id']
+def timer_done2():
+    '''If one of the players leaves the game'''
+    experiment_id = session['experiment_id']
 
-    # # get sid of other player
-    # if experiments[experiment_id]['receiver'] == user:
-    #     other_sid = experiments[experiment_id]['sender_sid']
-    # elif experiments[experiment_id]['sender'] == user:
-    #     other_sid = experiments[experiment_id]['receiver_sid']
+    if experiments[experiment_id]['left'] is True:
+        socketio.emit('redirect', {'url': '/leftgame'}, room=request.sid)
+    else:
+        experiments[experiment_id]['left'] = True
+        socketio.emit('redirect', {'url': '/timeout'}, room=request.sid)
 
-    # socketio.emit('redirect', {'url': '/timeout'}, room=other_sid)
-    socketio.emit('redirect', {'url': '/timeout'}, room=request.sid)
+# @socketio.on('UserLeftClicked')
+# def user_left_clicked():
+#     user = session['user']
+#     experiment_id = session['experiment_id']
+#     if experiments[experiment_id]['receiver'] == user:
+#         print('receiver left')
+#         socketio.emit('redirect', {'url': '/leftgame'}, namespace = '/sender', room=experiments[experiment_id]['sender_sid'])
+#     else:
+#         print('sender left')
+#         socketio.emit('redirect', {'url': '/leftgame'}, namespace='/receiver', room=experiments[experiment_id]['receiver_sid'])
 
 @socketio.on('joinedStandBy')
 def joined_stand_by():
@@ -216,7 +227,6 @@ def joined_stand_by():
         experiments[experiment_id]['receiver_sid'] = request.sid
     elif experiments[experiment_id]['sender'] == user:
         experiments[experiment_id]['sender_sid'] = request.sid
-        
 
 @socketio.on('joinedSender')
 def joined_sender():
@@ -224,12 +234,11 @@ def joined_sender():
     game = experiments[experiment_id]['game']
     set = experiments[experiment_id]['set']
     stimulus, context = game.generate_sc()
-    print(session)
     socketio.emit('stimulus', {'st': f'static/sets/set-{set}/stimuli/{stimulus}-{context}.png'}, 
                                                   room=request.sid)
 
 @socketio.on('buttonPressedSender')
-def button_pressed(button_id):
+def button_pressed_sender(button_id):
     user = session['user']
     experiment_id = session['experiment_id']
     game = experiments[experiment_id]['game']
@@ -256,7 +265,7 @@ def joined_receiver():
                                   'hex': rgb_hex[filenames[context]]}, room=request.sid)
 
 @socketio.on('buttonPressedReceiver')
-def button_pressed(button_id):
+def button_pressed_receiver(button_id):
     button_ids = {1: 'C', 2: 'S', 3: 'T'}
     experiment_id = session['experiment_id']
     game = experiments[experiment_id]['game']
@@ -313,4 +322,4 @@ def joined_endgame():
         f.write(f'{experiment_id},{receiver},{sender},{score},set-{set}\n')
 
 if __name__ == '__main__':
-    socketio.run(app, debug=False, port=9021)
+    socketio.run(app, debug=True, port=9022)

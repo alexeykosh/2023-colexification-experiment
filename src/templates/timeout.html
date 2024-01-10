@@ -7,7 +7,22 @@
 <body>
     <div class="top-row">
         <h2>Thank you for waiting. Unfortunately, you haven't been paired or your partner left.</h2> 
-        <h2>Click <a href="https://app.prolific.co/submissions/complete?cc=CT2Y8ZF3">here</a> to earn the compensatory payment.</h2>
+        <h2>Click <a id="compensatoryLink" href="https://app.prolific.com/submissions/complete?cc=CGWCSA2F">here</a> to earn the compensatory payment.</h2>
     </div>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
+    <script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        const socket = io();
+
+        // Adding a click event listener to the link
+        document.getElementById("compensatoryLink").addEventListener("click", function(event) {
+            // Preventing the default behavior of the link
+            event.preventDefault();
+            // Calling the function to emit the message
+            socket.emit('UserLeftClicked');
+            // Navigating to the link URL after emitting the message
+            window.location.href = event.target.href;
+        });
+    </script>
 </body>
 </html>

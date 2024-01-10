@@ -62,22 +62,22 @@
   <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
   <script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
   <script>
-      const socket = io();
+		const socket = io();
 
-      // Disable refresh and back navigation
-      history.pushState(null, null, location.href);
-      window.addEventListener('popstate', function () {
-        history.pushState(null, null, location.href);
-      });
+		// Disable refresh and back navigation
+		history.pushState(null, null, location.href);
+		window.addEventListener('popstate', function () {
+			history.pushState(null, null, location.href);
+		});
 
-      // if continue button is clicked, emit continue event
-      document.getElementById("continueBtn").addEventListener("click", function() {
-          socket.emit("readyToContinue");
-      });
+		// socket.on('redirect', function(data) {
+		//     window.location.href = '/description2';
+		// });
 
-      socket.on('redirect', function(data) {
-          window.location.href = data.url;
-      });
+		// when button is clicked, redirect to description2
+		$('#continueBtn').click(function() {
+			window.location.href = '/description3';
+		});
 	</script>
 </body>
 </html>
