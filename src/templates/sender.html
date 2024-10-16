@@ -1,141 +1,172 @@
 <!DOCTYPE html>
-<html>
-  <head>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sender</title>
     <link href="/static/style.css" rel="stylesheet">
-  </head>
-  <body>
+</head>
+<body>
     <div class="score-round">
-      Total transmission time: <span id="timer">00:00</span>
+        Total transmission time: <span id="timer">00:00</span>
     </div>
-    &nbsp
-    &nbsp
+    &nbsp;
+    &nbsp;
     <div class="top-row">
-      <img id="image">
-      <h2>Click and hold on a message to send the shape above to your partner.</h2>
+        <img id="image">
+        <h2>Click and hold on a message to send it to your partner.</h2>
     </div>
     <div class="bottom-row" id="button-container">
-      <button id="button1" onmousedown="startTimer(1)" onmouseup="stopTimer(1)"> {{ short }} </button>
-      <button id="button2" onmousedown="startTimer(2)" onmouseup="stopTimer(2)">{{ long }}</button>
+        <button id="button1" class="send-button" onmousedown="startTimer(1)" onmouseup="stopTimer(1)">{{ short }}</button>
+        <button id="button2" class="send-button" onmousedown="startTimer(2)" onmouseup="stopTimer(2)">{{ long }}</button>
     </div>
     <button class="hint-button" onclick="displayHint()">Hint</button>
     <div id="hint-modal" class="hint-image-container" style="display: none;">
-      <img src="static/sets/{{ folder }}/stimuli/S-r.png" class="hint-image">
-      <img src="static/sets/{{ folder }}/stimuli/S-l.png" class="hint-image">
-      <img src="static/sets/{{ folder }}/stimuli/T-r.png" class="hint-image">
-      <img src="static/sets/{{ folder }}/stimuli/C-l.png" class="hint-image">
-      <span class="close-button" onclick="closeHintModal()">&times;</span>
+        <img src="static/sets/{{ folder }}/stimuli/S-r.png" class="hint-image">
+        <img src="static/sets/{{ folder }}/stimuli/S-l.png" class="hint-image">
+        <img src="static/sets/{{ folder }}/stimuli/T-r.png" class="hint-image">
+        <img src="static/sets/{{ folder }}/stimuli/C-l.png" class="hint-image">
+        <span class="close-button" onclick="closeHintModal()">&times;</span>
     </div>
-    <p id="reminder" >
+    <p id="reminder"></p>
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
     <script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript" charset="utf-8">
-      // Connect to the Socket.io server
-      const socket = io();
+        // Connect to the Socket.io server
+        const socket = io();
 
-      const buttonContainer = document.getElementById('button-container');
-      const buttons = buttonContainer.getElementsByTagName('button');
-      const randomIndex = Math.floor(Math.random() * buttons.length);
-      buttonContainer.insertBefore(buttons[randomIndex], buttons[0]);
+        const buttonContainer = document.getElementById('button-container');
+        const buttons = buttonContainer.getElementsByTagName('button');
+        const randomIndex = Math.floor(Math.random() * buttons.length);
+        buttonContainer.insertBefore(buttons[randomIndex], buttons[0]);
 
-      // Disable refresh and back navigation
-      history.pushState(null, null, location.href);
-      window.addEventListener('popstate', function () {
+        // Disable refresh and back navigation
         history.pushState(null, null, location.href);
-      });
-      
-      // If connected, send the 'joined' event
-      socket.on('connect', function() {
-        socket.emit('joinedSender');
-      });
+        window.addEventListener('popstate', function () {
+            history.pushState(null, null, location.href);
+        });
 
+        // If connected, send the 'joined' event
+        socket.on('connect', function() {
+            socket.emit('joinedSender');
+        });
 
-      function displayHint() {
-        const hintModal = document.getElementById('hint-modal');
-        hintModal.style.display = 'block';
-      }
-
-      function closeHintModal() {
-        const hintModal = document.getElementById('hint-modal');
-        hintModal.style.display = 'none';
-      }
-
-      // Timer variables for each button
-      let timer1 = null;
-      let timer2 = null;
-
-      // Start the timer for the specified button
-      function startTimer(buttonId) {
-        if (buttonId === 1) {
-          timer1 = setTimeout(function() {
-            socket.emit('buttonPressedSender', buttonId);
-          }, {{ cost_short|safe }}); // Changed from 100 to 1000
-        } else if (buttonId === 2) {
-          timer2 = setTimeout(function() {
-            socket.emit('buttonPressedSender', buttonId);
-          }, {{ cost_long|safe }}); // Changed from 300 to 3000
+        function displayHint() {
+            const hintModal = document.getElementById('hint-modal');
+            hintModal.style.display = 'block';
         }
-      }
 
-      // Stop the timer for the specified button
-      function stopTimer(buttonId) {
-        if (buttonId === 1) {
-          clearTimeout(timer1);
-        } else if (buttonId === 2) {
-          clearTimeout(timer2);
+        function closeHintModal() {
+            const hintModal = document.getElementById('hint-modal');
+            hintModal.style.display = 'none';
         }
-      }
 
-      // if receive 'redirect' redirect to the url
-      socket.on('redirect', function(data) {
-          window.location.href = data.url;
-      });
+        // Timer variables for each button
+        let timer1 = null;
+        let timer2 = null;
+        let currentLetterIndex = 0; // Keeps track of which letter is being sent
+        let sendInterval = null; // Interval for letter-by-letter sending
+        const shortMessage = "{{ short }}"; // Replace with your actual short message
+        const longMessage = "{{ long }}"; // Replace with your actual long message
 
-      // Receive 'stimulus' event and add image to the DOM
-      socket.on('stimulus', function(data) {
-        imgSrc = data.st;
-        document.getElementById('image').src = imgSrc;
-      });
+        // Function to progressively send letters
+        function sendLetter(buttonId) {
+            let message = buttonId === 1 ? shortMessage : longMessage;
+            if (currentLetterIndex < message.length) {
+                const letter = message[currentLetterIndex];
 
-      let lastActiveTime = parseInt(localStorage.getItem('lastActiveTime')) || Date.now();
-      let totalSeconds = parseInt(localStorage.getItem('totalSeconds')) || 0;
-      let timerInterval;
+                // Send each letter to the server
+                socket.emit('letterSent', { letter: letter, buttonId: buttonId });
 
-      function startTimer_() {
-          const now = Date.now();
-          lastActiveTime = parseInt(localStorage.getItem('lastActiveTime')) || now;
-          totalSeconds = parseInt(localStorage.getItem('totalSeconds')) || 0;
+                // Display letter locally for animation
+                document.getElementById('button' + buttonId).textContent += letter;
 
-          const elapsedMilliseconds = now - lastActiveTime;
-          totalSeconds += Math.floor(elapsedMilliseconds / 1000);
+                currentLetterIndex++;
+            } else {
+                // Emit button pressed event when all letters have been sent
+                socket.emit('buttonPressedSender', buttonId);
+                stopTimer(buttonId); // Stop sending when all letters are sent
+            }
+        }
 
-          clearInterval(timerInterval); // Clear any existing intervals
-          timerInterval = setInterval(updateTimer, 1000);
-      }
+        // Start the timer for the specified button
+        function startTimer(buttonId) {
+            currentLetterIndex = 0; // Reset index to start sending from the first letter
+            document.getElementById('button' + buttonId).textContent = ''; // Clear previous message
+            if (buttonId === 1) {
+                timer1 = setTimeout(function() {
+                    sendInterval = setInterval(function() {
+                        sendLetter(buttonId); // Send one letter every 1.2 seconds
+                    }, 1200);
+                }, 100); // Small initial delay (change as needed)
+            } else if (buttonId === 2) {
+                timer2 = setTimeout(function() {
+                    sendInterval = setInterval(function() {
+                        sendLetter(buttonId); // Send one letter every 1.2 seconds
+                    }, 1200);
+                }, 0); // Small initial delay (change as needed)
+            }
+        }
 
-      function stopTimer_() {
-          clearInterval(timerInterval);
-          localStorage.setItem('totalSeconds', totalSeconds.toString());
-          localStorage.setItem('lastActiveTime', Date.now().toString());
-      }
+        // Stop the timer for the specified button
+        function stopTimer(buttonId) {
+            if (buttonId === 1) {
+                clearTimeout(timer1);
+                clearInterval(sendInterval); // Stop sending letters
+            } else if (buttonId === 2) {
+                clearTimeout(timer2);
+                clearInterval(sendInterval); // Stop sending letters
+            }
+        }
 
-      function updateTimer() {
-          totalSeconds++;
-          const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
-          const seconds = (totalSeconds % 60).toString().padStart(2, '0');
-          document.getElementById('timer').textContent = `${minutes}:${seconds}`;
-      }
+        // If receive 'redirect', redirect to the URL
+        socket.on('redirect', function(data) {
+            window.location.href = data.url;
+        });
 
-      window.addEventListener('load', startTimer_);
-      window.addEventListener('beforeunload', stopTimer_);
-      window.addEventListener('focus', startTimer_);
+        // Receive 'stimulus' event and add image to the DOM
+        socket.on('stimulus', function(data) {
+            imgSrc = data.st;
+            document.getElementById('image').src = imgSrc;
+        });
 
-      setTimeout(function() {
-        const reminderText = "Longer messages require a {{ cost_long // 1000 }} seconds press and hold to be sent, and shorter messages require a {{ cost_short // 1000 }} second press and hold only. Press hint to see all the possible color-shape combinations.";
-        $('#reminder').text(reminderText);
-      }, 0);
+        let lastActiveTime = parseInt(localStorage.getItem('lastActiveTime')) || Date.now();
+        let totalSeconds = parseInt(localStorage.getItem('totalSeconds')) || 0;
+        let timerInterval;
 
-      
+        function startTimer_() {
+            const now = Date.now();
+            lastActiveTime = parseInt(localStorage.getItem('lastActiveTime')) || now;
+            totalSeconds = parseInt(localStorage.getItem('totalSeconds')) || 0;
+
+            const elapsedMilliseconds = now - lastActiveTime;
+            totalSeconds += Math.floor(elapsedMilliseconds / 1000);
+
+            clearInterval(timerInterval); // Clear any existing intervals
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function stopTimer_() {
+            clearInterval(timerInterval);
+            localStorage.setItem('totalSeconds', totalSeconds.toString());
+            localStorage.setItem('lastActiveTime', Date.now().toString());
+        }
+
+        function updateTimer() {
+            totalSeconds++;
+            const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+            const seconds = (totalSeconds % 60).toString().padStart(2, '0');
+            document.getElementById('timer').textContent = `${minutes}:${seconds}`;
+        }
+
+        window.addEventListener('load', startTimer_);
+        window.addEventListener('beforeunload', stopTimer_);
+        window.addEventListener('focus', startTimer_);
+
+        setTimeout(function() {
+            const reminderText = "Each letter takes 1.2 seconds to send, you need to press and hold the button with the corresponding word untill all the letters are displayed to send it. Press hint to see all the possible color-shape combinations.";
+            $('#reminder').text(reminderText);
+        }, 0);
     </script>
-  </body>
+</body>
 </html>

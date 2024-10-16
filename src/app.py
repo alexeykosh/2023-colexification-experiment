@@ -24,11 +24,13 @@ app.config['CONTEXT_FOLDER'] = os.path.join('static', 'context')
 ### GLOBAL ###
 
 NROUNDS = 42
-COST_SHORT = 1
-COST_LONG = 4
+# COST_SHORT = 1
+# COST_LONG = 4
+COST_SHORT = 3.6
+COST_LONG = 8.4
 
-LINK_BONUS = "https://app.prolific.com/submissions/complete?cc=C1IR1LMH"
-LINK_NO_BONUS = "https://app.prolific.com/submissions/complete?cc=CMP1BDDS"
+LINK_BONUS = "https://app.prolific.com/submissions/complete?cc=C73N4S3V"
+LINK_NO_BONUS = "https://app.prolific.com/submissions/complete?cc=CS7YZZVX"
 
 experiments = defaultdict(dict)
 experiments_queue = []
@@ -40,10 +42,15 @@ rgb_hex = {'red': '#ff0000',
            'yellow': '#ffff00',
            'purple': '#ff00ff'}
 
-short_words = ['cauv', 'urbe', 'fusk', 'tarb', 'demb', 
-               'gyte', 'kilv', 'yirv', 'weff', 'ciff']
-long_words = ['ghrertch', 'chawntch', 'wroarnte', 'shoughse', 'thwisque', 
-              'strourgn', 'sprource', 'ghleente', 'phroughm', 'ghleuche']
+# short_words = ['cauv', 'urbe', 'fusk', 'tarb', 'demb', 
+#                'gyte', 'kilv', 'yirv', 'weff', 'ciff']
+# long_words = ['ghrertch', 'chawntch', 'wroarnte', 'shoughse', 'thwisque', 
+#               'strourgn', 'sprource', 'ghleente', 'phroughm', 'ghleuche']
+
+short_words = ['diz', 'bib', 'kle', 'sca', 'fli', 
+               'nif', 'pit', 'own', 'zep', 'tue']
+long_words = ['rewakes', 'chatial', 'ligorir', 'untubeg', 'derotfo', 
+               'ableick', 'soculif', 'oasepud', 'corgora', 'adafule']
 
 ### ROUTES ###
 
@@ -162,11 +169,11 @@ def personal():
 @app.route('/timeout')
 def timeout():
     user = session['user']
-    return render_template('timeout.html', user=user)
+    return render_template('timeout.html', user=user, link=LINK_NO_BONUS)
 
 @app.route('/leftgame')
 def leftgame():
-    return render_template('leftgame.html')
+    return render_template('leftgame.html', link=LINK_NO_BONUS)
 
 ### SOCKET.IO ###
 
@@ -196,6 +203,9 @@ def timer_done():
 def timer_done2():
     '''If one of the players leaves the game'''
     experiment_id = session['experiment_id']
+    if experiments[experiment_id]['left'] is False:
+        experiments[experiment_id]['left'] = True
+        socketio.emit('redirect', {'url': '/timeout'}, room=request.sid)
 
     if experiments[experiment_id]['left'] is True:
         socketio.emit('redirect', {'url': '/leftgame'}, room=request.sid)
@@ -246,7 +256,10 @@ def button_pressed_sender(button_id):
     button_ids = {1: experiments[experiment_id]['short_word'], 2: experiments[experiment_id]['long_word']}
     game.log_word(button_ids[button_id])
     if experiments[experiment_id]['sender'] == user:
-        socketio.emit('redirect', {'url': '/stand_by'}, room=request.sid)
+        if experiments[experiment_id]['left'] is True:
+            socketio.emit('redirect', {'url': '/leftgame'}, room=request.sid)
+        else:
+            socketio.emit('redirect', {'url': '/stand_by'}, room=request.sid)
     socketio.emit('redirect', {'url': '/receiver'}, room=experiments[experiment_id]['receiver_sid'])
 
 @socketio.on('joinedReceiver')
@@ -270,8 +283,11 @@ def button_pressed_receiver(button_id):
     experiment_id = session['experiment_id']
     game = experiments[experiment_id]['game']
     game.c_stimulus_out = button_ids[button_id]
-    socketio.emit('redirect', {'url': '/result'}, room=request.sid) 
-    socketio.emit('redirect', {'url': '/result'}, room=experiments[experiment_id]['sender_sid'])
+    if experiments[experiment_id]['left'] is True:
+        socketio.emit('redirect', {'url': '/leftgame'}, room=request.sid)
+    else:
+        socketio.emit('redirect', {'url': '/result'}, room=request.sid) 
+        socketio.emit('redirect', {'url': '/result'}, room=experiments[experiment_id]['sender_sid'])
 
 @socketio.on('joinedResult')
 def joined_result():
@@ -322,4 +338,4 @@ def joined_endgame():
         f.write(f'{experiment_id},{receiver},{sender},{score},set-{set}\n')
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True, port=9022)
+    socketio.run(app, debug=False, port=9022)
