@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Enter Your Details</title>
+    <title>Questionnaire</title>
     <link href="/static/style.css" rel="stylesheet">
     <style>
       /* CSS code for the modifications */
@@ -45,7 +45,7 @@
             <option value="Other">Other</option>
           </select>
         </div>
-        
+
         <div class="question">
           <label for="tabugida">What does {{ long }} mean?</label>
           <input type="text" id="tabugida" name="tabugida" required>
@@ -57,8 +57,13 @@
         </div>
 
         <div class="question">
-          <label for="native-language">Native Language:</label>
-          <input type="text" id="native-language" name="native-language" required>
+          <label for="shape1-question"> If you know that a shape is {{ color_1 }}, what can you conclude from it?</label>
+          <input type="text" id="shape1-question" name="shape1-question" required>
+        </div>
+
+        <div class="question">
+          <label for="shape2-question">If you know that a shape is {{ color_2 }}, what can you conclude from it?</label>
+          <input type="text" id="shape2-question" name="shape2-question" required>
         </div>
 
         <div class="top-row">

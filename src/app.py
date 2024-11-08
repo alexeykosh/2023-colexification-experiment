@@ -20,37 +20,31 @@ app.config['SECRET_KEY'] = 'fdhjdfkhv!JJJfdsjkkjnsd'
 socketio = SocketIO(app, ping_timeout=5000, ping_interval=10000)
 app.config['CONTEXT_FOLDER'] = os.path.join('static', 'context')
 
-
 ### GLOBAL ###
 
 NROUNDS = 42
-# COST_SHORT = 1
-# COST_LONG = 4
 COST_SHORT = 3.6
 COST_LONG = 8.4
 
 LINK_BONUS = "https://app.prolific.com/submissions/complete?cc=C73N4S3V"
 LINK_NO_BONUS = "https://app.prolific.com/submissions/complete?cc=CS7YZZVX"
+LINK_FAILED_ATTENTION = "https://app.prolific.com/submissions/complete?cc=CKD2BJ64"
 
 experiments = defaultdict(dict)
 experiments_queue = []
 usernames = []
 
-rgb_hex = {'red': '#ff0000', 
-           'green': '#0b7821', 
+rgb_hex = {'red': '#ff0000',
+           'green': '#008000', 
            'blue': '#0000ff', 
            'yellow': '#ffff00',
-           'purple': '#ff00ff'}
+           'purple': '#800080'}
 
-# short_words = ['cauv', 'urbe', 'fusk', 'tarb', 'demb', 
-#                'gyte', 'kilv', 'yirv', 'weff', 'ciff']
-# long_words = ['ghrertch', 'chawntch', 'wroarnte', 'shoughse', 'thwisque', 
-#               'strourgn', 'sprource', 'ghleente', 'phroughm', 'ghleuche']
-
-short_words = ['diz', 'bib', 'kle', 'sca', 'fli', 
-               'nif', 'pit', 'own', 'zep', 'tue']
-long_words = ['rewakes', 'chatial', 'ligorir', 'untubeg', 'derotfo', 
-               'ableick', 'soculif', 'oasepud', 'corgora', 'adafule']
+short_words = ['fep', 'gup', 'eep', 'onk', 'woc', 
+               'yun', 'feb', 'dob', 'zay', 'zup']
+long_words = ['swourge', 'phlolve', 'phoothe', 'spleese', 
+              'phrurnt', 'phladge', 'splulge', 'sneathe', 
+              'phlerge', 'shriege']
 
 ### ROUTES ###
 
@@ -70,6 +64,11 @@ def description2():
 def description3():
     return render_template('description3.html')
 
+@app.route('/attention')
+def attention():
+    return render_template('attention_check.html', 
+                           completion_url=LINK_FAILED_ATTENTION)
+
 @app.route('/start', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
@@ -79,7 +78,8 @@ def index():
         long_word = long_words[w_i]
         user_in = request.form['nickname']
         if user_in in usernames:
-            return render_template('index.html', error='You have already completed the experiment.')
+            return render_template('index.html', 
+                                   error='You have already completed the experiment.')
         else:
             usernames.append(user_in)
             if len(experiments_queue) > 0:
@@ -149,22 +149,56 @@ def endgame():
 
 @app.route('/personal', methods=['GET', 'POST'])
 def personal():
+
+    # Helper function to escape and quote values
+    def quote_and_escape(value):
+        if isinstance(value, str):
+            # Escape double quotes in the value
+            value = value.replace('"', '""')
+            # Wrap the value in quotes
+            return f'"{value}"'
+        return value
+    
     # get short and long words from experiments
     experiment_id = session['experiment_id']
     short_word = experiments[experiment_id]['short_word']
     long_word = experiments[experiment_id]['long_word']
+    ### getting colors ###
+    set = experiments[experiment_id]['set']
+
+    with open(f'static/sets/set-{set}/filenames.pkl', 'rb') as f:
+        filenames = pickle.load(f)
+
     if request.method == 'POST':
         user = session['user']
         age = request.form['age']
         gender = request.form['gender']
         tabugida = request.form['tabugida']
         rabu = request.form['rabu']
+        shape1 = request.form['shape1-question']
+        shape2 = request.form['shape2-question']
 
+        # Quote and escape each value
+        row = ','.join([
+            quote_and_escape(user),
+            age,
+            quote_and_escape(gender),
+            quote_and_escape(tabugida),
+            quote_and_escape(rabu),
+            quote_and_escape(shape1),
+            quote_and_escape(shape2)
+        ])
+
+        # Write to CSV file
         with open('logs/personal.csv', 'a') as f:
-            f.write(f'{user},{age},{gender},{tabugida},{rabu}\n')
+            f.write(row + '\n')
 
         return redirect('/endgame')
-    return render_template('personal.html', short = short_word, long = long_word)
+    return render_template('personal.html',
+                           short = short_word,
+                           long = long_word,
+                           color_1 = filenames['r'],
+                           color_2 = filenames['l'])
 
 @app.route('/timeout')
 def timeout():

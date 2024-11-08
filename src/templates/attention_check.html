@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Attention Check</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: auto;
+            width: 640px;
+            padding: 50px;
+            font-family: 'Lexend Deca', sans-serif;
+            color: #2E475D;
+            text-align: left;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 50%;
+            margin-top: 50px;
+            margin-bottom: 50px;
+        }
+
+        button {
+            margin-top: 20px;
+            font-size: 20px;
+            padding: 10px 20px;
+            background-color: #68697b;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .stimuli {
+            max-width: 50%;
+            margin: 10px;
+        }
+
+        input[type="text"] {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 18px;
+            width: 80%;
+            border: 1px solid #68697b;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- <h1>Attention Check</h1> -->
+
+    <p>
+        Finally, imagine you are playing video games with a friend, and at some point, your friend says: “I don’t want to play this game anymore! To make sure that you read the instructions, please write the three following words ‘I pay attention’ in the box below. I really dislike this game; it’s the most overrated game ever.” Do you agree with your friend?
+    </p>
+
+    <!-- Textbox for attention check -->
+    <input type="text" id="attentionCheckInput" placeholder="Type here...">
+
+    <button id="continueBtn">Next</button>
+
+    <!-- Including Socket.IO and jQuery -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
+    <script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        const socket = io();
+
+        // Ensure completion_url is properly parsed as a string
+        const failUrl = "{{ completion_url }}"; // 
+        
+        // Disable refresh and back navigation
+        history.pushState(null, null, location.href);
+        window.addEventListener('popstate', function () {
+            history.pushState(null, null, location.href);
+        });
+
+        // Check the input on button click
+        document.getElementById("continueBtn").addEventListener("click", function () {
+            const userInput = document.getElementById("attentionCheckInput").value.trim().toLowerCase();
+
+            // If the correct phrase is entered, emit the event and wait for redirect
+            if (userInput === "i pay attention") {
+                socket.emit("readyToContinue");
+            } else {
+                // Redirect to the completion URL if incorrect phrase is entered
+                window.location.href = failUrl;
+            }
+        });
+
+        socket.on('redirect', function (data) {
+            window.location.href = data.url;
+        });
+    </script>
+</body>
+
+</html>

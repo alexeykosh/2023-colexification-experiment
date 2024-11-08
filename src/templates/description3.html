@@ -36,16 +36,12 @@
             cursor: pointer;
         }
 
-        button.show {
-            display: block;
-        }
-
         .disclaimer {
-            max-width: 100%; /* Adjusted to match the text width of the original example */
+            max-width: 100%;
             margin-top: 20px;
             color: #FF0000;
             font-weight: bold;
-            font-size: xx-large; /* Increased font size */
+            font-size: xx-large;
         }
     </style>
 </head>
@@ -70,14 +66,9 @@
             history.pushState(null, null, location.href);
         });
 
-        // if continue button is clicked, emit continue event
-        document.getElementById("continueBtn").addEventListener("click", function () {
-            socket.emit("readyToContinue");
-        });
-
-        socket.on('redirect', function (data) {
-            window.location.href = data.url;
-        });
+		$('#continueBtn').click(function() {
+			window.location.href = '/attention';
+		});
     </script>
 </body>
 
