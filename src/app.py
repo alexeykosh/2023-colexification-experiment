@@ -78,7 +78,7 @@ def index():
         long_word = long_words[w_i]
         user_in = request.form['nickname']
         if user_in in usernames:
-            return render_template('index.html', 
+            return render_template('index.html',
                                    error='You have already completed the experiment.')
         else:
             usernames.append(user_in)
@@ -149,7 +149,9 @@ def endgame():
 
 @app.route('/personal', methods=['GET', 'POST'])
 def personal():
-
+    '''
+    NB: removed age and gender questions
+    '''
     # Helper function to escape and quote values
     def quote_and_escape(value):
         if isinstance(value, str):
@@ -163,26 +165,25 @@ def personal():
     experiment_id = session['experiment_id']
     short_word = experiments[experiment_id]['short_word']
     long_word = experiments[experiment_id]['long_word']
-    ### getting colors ###
+    # getting colors for the questions
     set = experiments[experiment_id]['set']
-
     with open(f'static/sets/set-{set}/filenames.pkl', 'rb') as f:
         filenames = pickle.load(f)
 
     if request.method == 'POST':
         user = session['user']
-        age = request.form['age']
-        gender = request.form['gender']
+        # age = request.form['age']
+        # gender = request.form['gender']
         tabugida = request.form['tabugida']
         rabu = request.form['rabu']
-        shape1 = request.form['shape1-question']
-        shape2 = request.form['shape2-question']
+        shape1 = ''.join(request.form.getlist('shape1-question'))
+        shape2 = ''.join(request.form.getlist('shape2-question'))
 
         # Quote and escape each value
         row = ','.join([
             quote_and_escape(user),
-            age,
-            quote_and_escape(gender),
+            # age,
+            # quote_and_escape(gender),
             quote_and_escape(tabugida),
             quote_and_escape(rabu),
             quote_and_escape(shape1),
@@ -197,8 +198,9 @@ def personal():
     return render_template('personal.html',
                            short = short_word,
                            long = long_word,
-                           color_1 = filenames['r'],
-                           color_2 = filenames['l'])
+                           color_1 = filenames['r'], # first right
+                           color_2 = filenames['l'], # then left 
+                           folder = f'set-{set}')
 
 @app.route('/timeout')
 def timeout():
@@ -309,7 +311,8 @@ def joined_receiver():
 
     socketio.emit('contextWord', {'color': filenames[context], 
                                   'word': game.c_word,
-                                  'hex': rgb_hex[filenames[context]]}, room=request.sid)
+                                  'hex': rgb_hex[filenames[context]]}, 
+                                  room=request.sid)
 
 @socketio.on('buttonPressedReceiver')
 def button_pressed_receiver(button_id):
@@ -318,10 +321,13 @@ def button_pressed_receiver(button_id):
     game = experiments[experiment_id]['game']
     game.c_stimulus_out = button_ids[button_id]
     if experiments[experiment_id]['left'] is True:
-        socketio.emit('redirect', {'url': '/leftgame'}, room=request.sid)
+        socketio.emit('redirect', {'url': '/leftgame'}, 
+                      room=request.sid)
     else:
-        socketio.emit('redirect', {'url': '/result'}, room=request.sid) 
-        socketio.emit('redirect', {'url': '/result'}, room=experiments[experiment_id]['sender_sid'])
+        socketio.emit('redirect', {'url': '/result'}, 
+                      room=request.sid) 
+        socketio.emit('redirect', {'url': '/result'}, 
+                      room=experiments[experiment_id]['sender_sid'])
 
 @socketio.on('joinedResult')
 def joined_result():

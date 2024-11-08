@@ -16,16 +16,39 @@
         margin-bottom: 10px;
       }
 
-      .question input[type="text"] {
-        width: 300px; /* Adjust the width as desired */
+      .question input[type="text"],
+      .question select {
+        width: 300px;
         padding: 5px;
+      }
+
+      .shape-options {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+      }
+
+      .shape-option {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .shape-option img {
+        width: 50px; /* Smaller image size */
+        height: 50px;
+      }
+
+      .shape-option input[type="checkbox"] {
+        margin-top: 5px; /* Space between the image and checkbox */
       }
     </style>
   </head>
   <body>
     <div class="top-row">
-      <h2>Enter Your Details</h2>
-      <form method="post">
+      <h2>Questionnaire</h2>
+
+      <!-- 
         <div class="question">
           <label for="age">Age:</label>
           <select id="age" name="age" required>
@@ -44,27 +67,55 @@
             <option value="Female">Female</option>
             <option value="Other">Other</option>
           </select>
-        </div>
-
-        <div class="question">
-          <label for="tabugida">What does {{ long }} mean?</label>
-          <input type="text" id="tabugida" name="tabugida" required>
-        </div>
-
-        <div class="question">
-          <label for="rabu">What does {{ short }} mean?</label>
-          <input type="text" id="rabu" name="rabu" required>
-        </div>
-
-        <div class="question">
-          <label for="shape1-question"> If you know that a shape is {{ color_1 }}, what can you conclude from it?</label>
-          <input type="text" id="shape1-question" name="shape1-question" required>
-        </div>
-
-        <div class="question">
-          <label for="shape2-question">If you know that a shape is {{ color_2 }}, what can you conclude from it?</label>
-          <input type="text" id="shape2-question" name="shape2-question" required>
-        </div>
+        </div> -->
+        <form method="post">
+          <div class="question">
+            <label for="tabugida">What does <strong>{{ long }}</strong> mean?</label>
+            <input type="text" id="tabugida" name="tabugida" required>
+          </div>
+        
+          <div class="question">
+            <label for="rabu">What does <strong>{{ short }}</strong> mean?</label>
+            <input type="text" id="rabu" name="rabu" required>
+          </div>
+        
+          <!-- Shape Question 1 -->
+          <div class="question">
+            <label for="shape1-question">If you know that a shape is <strong>{{ color_1 }}</strong>, what shape can it be?</label>
+            <div class="shape-options">
+              <div class="shape-option">
+                <img src="static/sets/{{ folder }}/shapes/C.png" alt="Shape C">
+                <input type="checkbox" id="shape1-option1" name="shape1-question" value="C">
+              </div>
+              <div class="shape-option">
+                <img src="static/sets/{{ folder }}/shapes/S.png" alt="Shape S">
+                <input type="checkbox" id="shape1-option2" name="shape1-question" value="S">
+              </div>
+              <div class="shape-option">
+                <img src="static/sets/{{ folder }}/shapes/T.png" alt="Shape T">
+                <input type="checkbox" id="shape1-option3" name="shape1-question" value="T">
+              </div>
+            </div>
+          </div>
+        
+          <!-- Shape Question 2 -->
+          <div class="question">
+            <label for="shape2-question">If you know that a shape is <strong>{{ color_2 }}</strong>, what shape can it be?</label>
+            <div class="shape-options">
+              <div class="shape-option">
+                <img src="static/sets/{{ folder }}/shapes/C.png" alt="Shape C">
+                <input type="checkbox" id="shape2-option1" name="shape2-question" value="C">
+              </div>
+              <div class="shape-option">
+                <img src="static/sets/{{ folder }}/shapes/S.png" alt="Shape S">
+                <input type="checkbox" id="shape2-option2" name="shape2-question" value="S">
+              </div>
+              <div class="shape-option">
+                <img src="static/sets/{{ folder }}/shapes/T.png" alt="Shape T">
+                <input type="checkbox" id="shape2-option3" name="shape2-question" value="T">
+              </div>
+            </div>
+          </div>
 
         <div class="top-row">
           <button type="submit" {% if error %}disabled{% endif %}>Continue</button>
